@@ -1,0 +1,4 @@
+#451qa_nav_hdr > ul > li:first-child { display:none; }
+#451qa_nav_hdr + div.row > aside { display:none !important; }
+#451qa_nav_hdr + div.row > div.col-md-12 { width:100%; }
+.panel-product-list > .alert { display:none; }
