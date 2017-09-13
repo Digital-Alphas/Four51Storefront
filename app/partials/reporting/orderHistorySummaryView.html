@@ -1,4 +1,9 @@
 <div>
+    <p ng-repeat="field in order.OrderFields | filter:{Name:'!contractNumbers'}" ng-if="field.Value != ''">
+        <span class="text-info">{{field.Label}}</span>
+        <span class="pull-right">{{field.Value}}</span>
+    </p>
+    <hr>
     <p>
         <span class="text-info">{{'Subtotal' | r | xlat}}</span>
         <span class="pull-right">{{order.Subtotal | culturecurrency}}</span>

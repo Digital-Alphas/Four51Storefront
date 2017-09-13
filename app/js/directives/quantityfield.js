@@ -12,10 +12,12 @@ four51.app.directive('quantityfield', ['$451', 'ProductDisplayService', function
             '<input ng-disabled="lineitem.Variant.RecordCount > 0 && lineitem.ID" id="451qa_input_qty" placeholder="0" autocomplete="off" class="form-control" ng-change="qtyChanged(lineitem)" ng-if="!lineitem.PriceSchedule.RestrictedQuantity" type="text" ng-required="required" name="qtyInput" ng-model="lineitem.Quantity" ui-validate="\'validQuantityAddToOrder($value, lineitem)\'"/>'+
             '</div>',
         link: function(scope){
-            scope.getRestrictedQtyText = function(priceBreak, qtyMultiplier){
+            scope.getRestrictedQtyText = function(priceBreak, qtyMultiplier, lineItem){
                 var qtyText = priceBreak.Quantity * qtyMultiplier;
                 if(qtyMultiplier > 1)
-                    qtyText += ' (' + priceBreak.Quantity + 'x' + qtyMultiplier +')';
+                    qtyText += ' - $' + Number(priceBreak.Price*priceBreak.Quantity).toFixed(2);
+                else
+                    qtyText += ' - $' + Number(qtyText * priceBreak.Price).toFixed(2);
                 return qtyText;
             };
             scope.qtyChanged = function(lineitem){

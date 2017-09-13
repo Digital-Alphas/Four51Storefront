@@ -82,6 +82,21 @@
                         </div>
                         <div>
                             <div class="view-form-icon" ng-show="PasswordReset">
+								<div class="alert alert-info" ng-show="PasswordReset">
+									<p>
+										<strong>Your Password must include:</strong>
+									</p>
+									<ul style="list-style-type: circle; padding: 5px;">
+										<li>A minimum of 8 alphanumeric characters</li>
+										<li>Two or more of the following kinds of characters</li>
+											<ul style="list-style-type: circle; padding: 0 25px;">
+												<li>Alphabetic (e.g. a-z, A-Z)</li>
+												<li>Numeric (i.e. 0-9)</li>
+												<li>Punctuation and other characters (e.g. !@#$%^*()_+|~-=\`{}[]:";'?,./)</li>
+											</ul>
+										<li>After 6 failed logon attempts the user will be locked out for 30 minutes</li>
+									</ul>
+								</div>
                                 <div>
                                     <label ng-show="credentials.NewPassword">New {{'Password' | r}}</label>
                                     <input class="form-control" ng-required="PasswordReset" name="new_password" type="password" ng-model="credentials.NewPassword" placeholder="New {{'Password' | r}}" />
@@ -93,6 +108,7 @@
                                     <i class="fa fa-lock"></i>
                                     <inlineerror ng-show="login_form.confirm_password.$error.match" title="{{'Password' | r}} do not match!" />
                                 </div>
+                              
                             </div>
                         </div>
                         <input ng-disabled="login_form.$invalid" class="btn btn-large btn-primary btn-block" id="451_btn_login" type="submit" value="{{buttonText}}" />
