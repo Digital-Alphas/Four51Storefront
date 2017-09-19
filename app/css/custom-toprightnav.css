@@ -1,13 +1,8 @@
-@media (min-width:1200px){
-	header.navbar {
-		width:1150px;
-	}
-}
 @media (min-width:992px){
 	/* navigation */
 	header.navbar {
 		position: relative;
-		height: 215px;
+		height: 140px; /*215px;*/
 		width:950px;
 		margin:0 auto;		
 	}
@@ -19,7 +14,7 @@
 	
 	header > nav.navbar {
 		position: absolute;
-		top: 75px;
+		top: 15px; /*75px;*/
 		right: 0px;
 		bottom: auto;		
 		left: auto;
@@ -27,11 +22,11 @@
 	
 	header > nav.dropdown-mega {
 		position: absolute;
-		top: 135px;
-		right: 5px;
+		top: 75px; /*135px;*/
+		right: 0px;
 		bottom: auto;		
 		left: auto;
-		width: 540px;
+		width: 550px;
 		z-index: 1030;
 	}
 	
@@ -86,7 +81,6 @@
 	} 
 	
 	branding .jumbotron .container h2.thumbnail {
-		padding: 0 15px;
 		margin-bottom: 0;
 	}
 	
@@ -94,4 +88,9 @@
 		max-width: 400px;
 	}
 	
+}
+@media (min-width:1200px){
+	header.navbar {
+		width:1150px;
+	}
 }

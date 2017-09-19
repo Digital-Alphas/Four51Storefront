@@ -10287,14 +10287,13 @@ table[datepicker] {
     width: 1150px;
   }
 }
-/*
 .dropdown-mega {
     border-bottom: none;
     left: 0px;
     right: 0px;
-	background-color:#ddd
+	background-color:#ddd;
 }
-
+/*
 .view-form-icon label {
 	position:absolute;
 }
