@@ -1,0 +1,97 @@
+@media (min-width:1200px){
+	header.navbar {
+		width:1150px;
+	}
+}
+@media (min-width:992px){
+	/* navigation */
+	header.navbar {
+		position: relative;
+		height: 215px;
+		width:950px;
+		margin:0 auto;		
+	}
+	
+	header > nav.navbar .container {
+		width: 550px;
+		margin: 0 auto;
+	}
+	
+	header > nav.navbar {
+		position: absolute;
+		top: 75px;
+		right: 0px;
+		bottom: auto;		
+		left: auto;
+	}
+	
+	header > nav.dropdown-mega {
+		position: absolute;
+		top: 135px;
+		right: 5px;
+		bottom: auto;		
+		left: auto;
+		width: 540px;
+		z-index: 1030;
+	}
+	
+	header > nav.dropdown-mega .dropdown-menu > ul > li, 
+	header > nav.dropdown-mega .dropdown-mega .dropdown-menu > ul > li {
+		float: none;
+		width: 100%;
+	}
+	
+	header > nav.dropdown-mega .dropdown-menu > ul > li > a, 
+	header > nav.dropdown-mega .dropdown-mega .dropdown-menu > ul > li > a {
+		border-top: 1px solid #dddddd;
+	}
+	
+	header > nav.dropdown-mega .dropdown-menu a, 
+	header > nav.dropdown-mega .dropdown-mega .dropdown-menu a {
+		padding: 15px 0;
+		width: 100%;
+	}
+	
+	header > nav.navbar-fixed-bottom, 
+	header > nav.navbar-fixed-top {
+		-o-transition-property: none!important;
+		-moz-transition-property: none!important;
+		-ms-transition-property: none!important;
+		-webkit-transition-property: none!important;
+		transition-property: none!important;
+		
+		-o-transform: none!important;
+		-moz-transform: none!important;
+		-ms-transform: none!important;
+		-webkit-transform: none!important;
+		transform: none!important;
+		
+		-webkit-animation: none!important;
+		-moz-animation: none!important;
+		-o-animation: none!important;
+		-ms-animation: none!important;
+		animation: none!important;
+	}
+	
+	/* branding */
+	branding .jumbotron {
+		position: absolute;
+		padding: 0;
+		top: 15px;
+		left: 0;
+		right: 0;
+		margin: 0;
+		text-align: left;
+		background-color: transparent;
+	} 
+	
+	branding .jumbotron .container h2.thumbnail {
+		padding: 0 15px;
+		margin-bottom: 0;
+	}
+	
+	.jumbotron .container h2.thumbnail a {
+		max-width: 400px;
+	}
+	
+}

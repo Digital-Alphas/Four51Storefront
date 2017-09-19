@@ -4,8 +4,8 @@
             <a href="catalog">
                 <img ng-src="{{user.Company.LogoUrl}}" />
             </a>
-            <span>{{user.Company.Name}}</span>
-            <homemessage />
+            <span>{{user.Company.Name}}</span>            
         </h2>
+		<homemessage ng-show="Four51User.isAuthenticated()" />
     </div>
 </section>

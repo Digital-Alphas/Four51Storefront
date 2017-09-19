@@ -20,24 +20,33 @@
 //== Dropdowns
 
 //== Media queries breakpoints
-//** phone < 618px
+//** phone < 767px
 @media (max-width: @screen-xs-max) {
   // code
 }
 
-//** tablet portrait < 768px
+//** tablet portrait 768px - 991px
 @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
-  // code
+	.container,
+    .container-view {
+        width: 730px;
+    }
 }
 
-//** tablet landscape & desktop  < 1024p
+//** tablet landscape & desktop  992px - 1199px
 @media (min-width: @screen-md-min) and (max-width: @screen-md-max) {
-  // code
+	.container,
+	.container-view {
+		width: 950px;
+	}
 }
 
 //** desktops > 1200px
 @media (min-width: @screen-lg-min){
-  // code
+	.container,
+	.container-view {
+		width: 1150px;
+	}
 }
 
 //== Grid system
