@@ -10,7 +10,6 @@
 	header > nav.navbar {
 		z-index:1030;
 		float:right;
-		height:60px;
 		position:relative;
 	}
 	
