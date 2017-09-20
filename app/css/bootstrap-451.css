@@ -10287,11 +10287,20 @@ table[datepicker] {
     width: 1150px;
   }
 }
+.jumbotron {
+  text-align: center;
+}
+.jumbotron h2.thumbnail img {
+  max-height: 185px;
+}
+.jumbotron h2.thumbnail span {
+  display: none;
+}
 .dropdown-mega {
-    border-bottom: none;
-    left: 0px;
-    right: 0px;
-	background-color:#ddd;
+  border-bottom: none;
+  left: 0px;
+  right: 0px;
+  background-color: #ddd;
 }
 /*
 .view-form-icon label {

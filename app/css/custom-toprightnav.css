@@ -2,49 +2,31 @@
 	/* navigation */
 	header.navbar {
 		position: relative;
-		height: 140px; /*215px;*/
+		overflow:hidden;
 		width:950px;
-		margin:0 auto;		
+		margin:75px auto 0 auto;		
+	}
+
+	header > nav.navbar {
+		z-index:1030;
+		float:right;
+		height:60px;
+		position:relative;
 	}
 	
 	header > nav.navbar .container {
-		width: 550px;
-		margin: 0 auto;
+		/*width: auto;*/
+		width:580px;
 	}
 	
-	header > nav.navbar {
-		position: absolute;
-		top: 15px; /*75px;*/
-		right: 0px;
-		bottom: auto;		
-		left: auto;
+	header > nav.navbar .container > ul.nav {
+		/*uncomment below if .container width=auto*/
+		/*display:inline-block;*/
+		/*float:none !important;*/
 	}
 	
 	header > nav.dropdown-mega {
-		position: absolute;
-		top: 75px; /*135px;*/
-		right: 0px;
-		bottom: auto;		
-		left: auto;
-		width: 550px;
-		z-index: 1030;
-	}
-	
-	header > nav.dropdown-mega .dropdown-menu > ul > li, 
-	header > nav.dropdown-mega .dropdown-mega .dropdown-menu > ul > li {
-		float: none;
-		width: 100%;
-	}
-	
-	header > nav.dropdown-mega .dropdown-menu > ul > li > a, 
-	header > nav.dropdown-mega .dropdown-mega .dropdown-menu > ul > li > a {
-		border-top: 1px solid #dddddd;
-	}
-	
-	header > nav.dropdown-mega .dropdown-menu a, 
-	header > nav.dropdown-mega .dropdown-mega .dropdown-menu a {
-		padding: 15px 0;
-		width: 100%;
+		display:none;
 	}
 	
 	header > nav.navbar-fixed-bottom, 
@@ -70,22 +52,12 @@
 	
 	/* branding */
 	branding .jumbotron {
-		position: absolute;
-		padding: 0;
-		top: 15px;
-		left: 0;
-		right: 0;
-		margin: 0;
-		text-align: left;
-		background-color: transparent;
+		margin-top:-135px;
+		text-align:left;
 	} 
 	
-	branding .jumbotron .container h2.thumbnail {
-		margin-bottom: 0;
-	}
-	
-	.jumbotron .container h2.thumbnail a {
-		max-width: 400px;
+	.jumbotron .container h2.thumbnail img {
+		max-width: 350px;
 	}
 	
 }
