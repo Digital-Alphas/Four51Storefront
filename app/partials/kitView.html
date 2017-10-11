@@ -60,13 +60,10 @@
 					</h3>
 				</div>
 				<div class="panel-body">
-					<h4 ng-show="Kit.KitParent.ExternalID" class="text-info">
-						{{'ID' | r | xlat}}: {{Kit.KitParent.ExternalID}}
-					</h4>
 					<p ng-bind-html="trustedDescription(Kit.KitParent)" />
 				</div>
 				<!-- PRICE SCHEDULE PANEL! --->
-				<priceScheduleTable ng-if="!(user.Permissions.contains('HidePricing')) && LineItem.PriceSchedule.PriceBreaks.length > 1 && LineItem.IsKitParent" ps='LineItem.PriceSchedule' p='Kit.KitParent'/>
+				<priceScheduleTable ng-if="!(user.Permissions.contains('HidePricing')) && LineItem.PriceSchedule.PriceBreaks.length > 1 && !LineItem.PriceSchedule.RestrictedQuantity && LineItem.IsKitParent" ps='LineItem.PriceSchedule' p='Kit.KitParent'/>
 			</div>
 		</div>
 		<!-- STATIC SPECS PANEL! -->

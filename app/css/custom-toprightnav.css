@@ -53,6 +53,7 @@
 	branding .jumbotron {
 		margin-top:-135px;
 		text-align:left;
+		display:block;
 	} 
 	
 	.jumbotron .container h2.thumbnail img {
