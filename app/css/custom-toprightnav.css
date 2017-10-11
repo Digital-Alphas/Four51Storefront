@@ -60,6 +60,12 @@
 		max-width: 350px;
 	}
 	
+	/* Hide caret on active menu item */
+	.navbar .container .navbar-nav li.active .fa-caret-down, 
+	.navbar .container-view .navbar-nav li.active .fa-caret-down {
+		display:none;
+	}
+	
 }
 @media (min-width:1200px){
 	header.navbar {
