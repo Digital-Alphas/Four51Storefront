@@ -10296,6 +10296,9 @@ table[datepicker] {
 .jumbotron h2.thumbnail span {
   display: none;
 }
+.panel-product-list .thumbnail img {
+  max-height: 210px;
+}
 .dropdown-mega {
   border-bottom: none;
   left: 0px;
