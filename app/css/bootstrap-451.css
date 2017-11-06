@@ -10299,6 +10299,21 @@ table[datepicker] {
 .panel-product-list .thumbnail img {
   max-height: 210px;
 }
+@media (max-width: 767px) {
+  .product-image-large {
+    max-height: 297px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  .product-image-large {
+    max-height: 425px;
+  }
+}
+@media (min-width: 992px) {
+  .product-image-large {
+    max-height: 510px;
+  }
+}
 .dropdown-mega {
   border-bottom: none;
   left: 0px;
