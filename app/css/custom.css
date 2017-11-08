@@ -8,6 +8,9 @@ Template: Howdy
 /* Uncomment the line below to always hide the left navigation bar (categories) */
 /* @import url("custom-hidecategorynav.css"); */
 
+/* Uncomment the line below to make the banner carousel fullwidth */
+/* @import url("custom-fullwidthbanner.css"); */
+
 /* Uncomment the line below to hide the company logo and name (e.g. when using banner carousel) */
 /* @import url("custom-hidecompanylogo.css"); */
 
