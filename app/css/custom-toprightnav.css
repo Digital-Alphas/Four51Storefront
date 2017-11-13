@@ -1,74 +1,46 @@
 @media (min-width:992px){
-	/* navigation */
-	header.navbar {
-		position: relative;
-		overflow:hidden;
+	/*container*/
+	.nav-branding-container {
 		width:950px;
-		margin:75px auto 0 auto;		
+		margin:0 auto;
+		display:flex;
+		flex-direction: row-reverse;
+		-ms-flex-direction: row-reverse;
+		align-items:center;
 	}
 
-	header > nav.navbar {
-		z-index:1030;
-		float:right;
+
+	/* navigation */
+	.nav-branding-container > section:first-of-type {
+		width:55%;
+	}
+	.nav-branding-container navigation .navbar-fixed-top {
 		position:relative;
 	}
-	
-	header > nav.navbar .container {
-		/*width: auto;*/
-		width:580px;
+	.nav-branding-container navigation .navbar .container {
+		width:100%;
 	}
-	
-	header > nav.navbar .container > ul.nav {
-		/*uncomment below if .container width=auto*/
-		/*display:inline-block;*/
-		/*float:none !important;*/
-	}
-	
-	header > nav.dropdown-mega {
-		display:none;
-	}
-	
-	header > nav.navbar-fixed-bottom, 
-	header > nav.navbar-fixed-top {
-		-o-transition-property: none!important;
-		-moz-transition-property: none!important;
-		-ms-transition-property: none!important;
-		-webkit-transition-property: none!important;
-		transition-property: none!important;
-		
-		-o-transform: none!important;
-		-moz-transform: none!important;
-		-ms-transform: none!important;
-		-webkit-transform: none!important;
-		transform: none!important;
-		
-		-webkit-animation: none!important;
-		-moz-animation: none!important;
-		-o-animation: none!important;
-		-ms-animation: none!important;
-		animation: none!important;
-	}
-	
-	/* branding */
-	branding .jumbotron {
-		margin-top:-135px;
-		text-align:left;
-		display:block;
-	} 
-	
-	.jumbotron .container h2.thumbnail img {
-		max-width: 350px;
-	}
-	
 	/* Hide caret on active menu item */
 	.navbar .container .navbar-nav li.active .fa-caret-down, 
 	.navbar .container-view .navbar-nav li.active .fa-caret-down {
 		display:none;
 	}
+
+
+	/* branding */
+	.nav-branding-container > section:nth-of-type(2) {
+		width:45%;
+	}
+	.nav-branding-container branding .jumbotron {
+		margin-left:0;
+		margin-right:5%;
+		padding: 0 0;
+		display: block;
+	}
 	
 }
 @media (min-width:1200px){
-	header.navbar {
+	.nav-branding-container {
 		width:1150px;
 	}
 }

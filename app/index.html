@@ -39,11 +39,13 @@
         <login />
     </section>
     <section ng-if="Four51User.isAuthenticated()" id="content">
-        <section class="hidden-print">
-            <navigation />
-        </section>
-        <section class="hidden-print">
-            <branding />
+        <section class="nav-branding-container">
+            <section class="hidden-print">
+                <navigation />
+            </section>
+            <section class="hidden-print">
+                <branding />
+            </section>
         </section>
         <section class="container-view">
             <ng-view autoscroll />
