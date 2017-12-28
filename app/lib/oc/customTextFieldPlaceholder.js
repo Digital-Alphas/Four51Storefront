@@ -1,29 +1,26 @@
 angular.module('PremierPrint-CustomTextFieldPlaceholder', []);
 angular.module('PremierPrint-CustomTextFieldPlaceholder')
-    .directive('customtextfield', customtextfield)
     .filter('placeholderFilter', placeholderFilter)
-;
-
-//customize existing customtextfield directive
-function customtextfield($timeout,$filter) {
-  return {
-    restrict: 'E',
-    require: [
-      '?customtextfield'
-    ],
-    link: function (scope, element) {
-        $timeout(function(){
-            if(scope.LineItem && scope.LineItem.Product && scope.LineItem.Product.StaticSpecGroups){
-                var textfields = element.find("input, textarea");
-                angular.forEach(textfields, function(textfield) {
-                    var placeholder = $filter('placeholderFilter')(scope.LineItem.Product.StaticSpecGroups, 'CustomTextFieldPlaceholder', textfield.name);
-                    if(placeholder) textfield.placeholder = placeholder;
+    .directive('customtextfield', ['$timeout','$filter', function ($timeout,$filter) {
+        return {
+            restrict: 'E',
+            require: [
+              '?customtextfield'
+            ],
+            link: function (scope, element) {
+                $timeout(function(){
+                    if(scope.LineItem && scope.LineItem.Product && scope.LineItem.Product.StaticSpecGroups){
+                        var textfields = element.find("input, textarea");
+                        angular.forEach(textfields, function(textfield) {
+                            var placeholder = $filter('placeholderFilter')(scope.LineItem.Product.StaticSpecGroups, 'CustomTextFieldPlaceholder', textfield.name);
+                            if(placeholder) textfield.placeholder = placeholder;
+                        });
+                    }
                 });
             }
-        });
-    }
-  };
-}
+          };
+    }]);
+;
 
 function placeholderFilter() {
     return function (specGroups, groupName, specName) {

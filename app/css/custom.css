@@ -4,18 +4,3 @@ Theme name: My SPA Theme
 Version: 1.0
 Template: Howdy
 */
-
-/* Uncomment the line below to always hide the left navigation bar (categories) */
-/* @import url("custom-hidecategorynav-left.css"); */
-
-/* Uncomment the line below to hide the top sub navigation bar (categories) on desktop  */
-/* @import url("custom-hidecategorynav-top.css"); */
-
-/* Uncomment the line below to make the banner carousel fullwidth */
-/* @import url("custom-fullwidthbanner.css"); */
-
-/* Uncomment the line below to hide the company logo and name (e.g. when using banner carousel) */
-/* @import url("custom-hidecompanylogo.css"); */
-
-/* Uncomment the line below to show the top navigation in the upper right corner */
-/* @import url("custom-toprightnav.css"); */
