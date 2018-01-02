@@ -1,0 +1,12 @@
+@media (min-width: 1200px) {
+    .navbar-fixed-bottom {
+        max-width: 1150px;
+        margin: 0 auto;
+    }
+}
+@media (max-width: 1199px) and (min-width: 992px){
+    .navbar-fixed-bottom {
+        max-width: 950px;
+        margin: 0 auto;
+    }
+}

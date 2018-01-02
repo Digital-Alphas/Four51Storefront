@@ -37,6 +37,9 @@
 		padding: 0 0;
 		display: block;
 	}
+	.nav-branding-container branding .jumbotron .thumbnail {
+		text-align:left;
+	}
 	
 }
 @media (min-width:1200px){
