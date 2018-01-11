@@ -13,8 +13,11 @@ function ($scope, $routeParams, $location, $filter, $rootScope, $451, User, Orde
         $location.path('catalog');
     }
 
-	$scope.hasOrderConfig = OrderConfig.hasConfig($scope.currentOrder, $scope.user);
-	$scope.checkOutSection = $scope.hasOrderConfig ? 'order' : 'shipping';
+	$scope.hasOrderDetails = ( 
+		(OrderConfig.hasConfig($scope.currentOrder, $scope.user)) || 
+		(OrderConfig.hasFields($scope.currentOrder, $scope.user) && _removeCustomDisplayOrderFields($scope.currentOrder.OrderFields).length > 0) 
+	);
+	$scope.checkOutSection = $scope.hasOrderDetails ? 'order' : 'shipping';
 
     function submitOrder() {
 	    $scope.displayLoadingIndicator = true;
@@ -134,4 +137,24 @@ function ($scope, $routeParams, $location, $filter, $rootScope, $451, User, Orde
 	$scope.cancelEdit = function() {
 		$location.path('order');
 	};
+
+	$scope.filterIsNotCustomDisplayOrderField = function(field){
+		return !_isCustomDisplayOrderField();
+	}
+
+	function _isCustomDisplayOrderField(field){
+		return field.Name.toLowerCase().indexOf("proposal") === 0;
+	}
+
+	// remove order fields from the Order section if they are to be displayed elsewhere
+	function _removeCustomDisplayOrderFields(fields) {
+		var result = [];
+		angular.forEach(fields, function(field){
+			if(!_isCustomDisplayOrderField(field)){
+				result.push(field);
+			}
+		});
+		return result;
+	};
+
 }]);

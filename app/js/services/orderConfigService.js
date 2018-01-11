@@ -61,12 +61,19 @@ four51.app.factory('OrderConfig', ['Address', function(Address) {
 	};
 
 	var showOrderDetails = function() {
-		return (user.Permissions.contains('EditPOID') ||
+		return _hasOrderConfigPermissions() || _hasOrderFields();
+    };
+    
+    function _hasOrderConfigPermissions(){
+        return (user.Permissions.contains('EditPOID') ||
 			user.Permissions.contains('Comments') ||
 			(user.Permissions.contains('CostCenterPerOrder') && !user.Permissions.contains('CostCenterPerLine') && user.CostCenters.length > 0) ||
-			(user.Permissions.contains('CostCenterPerOrder') && user.Permissions.contains('FreeFormCostCenter') ) ||
-            (order && order.OrderFields.length > 0));
-	};
+			(user.Permissions.contains('CostCenterPerOrder') && user.Permissions.contains('FreeFormCostCenter') )); 
+    }
+    
+    function _hasOrderFields(){
+        return (order && order.OrderFields.length > 0);
+    }
 
 	function _hasAddress() {
 		if (!order) return false;
@@ -101,7 +108,11 @@ four51.app.factory('OrderConfig', ['Address', function(Address) {
         },
 	    hasConfig: function(o,u) {
 		    order = o; user = u;
-		    return showOrderDetails();
+		    return _hasOrderConfigPermissions();
+        },
+        hasFields: function(o,u) {
+		    order = o; user = u;
+		    return _hasOrderFields();
 	    }
     };
 }]);

@@ -37,3 +37,4 @@ app/css/css/customizations/variables.css
 app/css/css/fourfiveone/search.css
 da-prod-temp-test.html
 app/lib/oc/variantSpecForm.js
+app/lib/oc/imageToDataUrl.js
