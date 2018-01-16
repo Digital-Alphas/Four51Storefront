@@ -8,7 +8,8 @@ angular.module('PremierPrint-OrderProposal')
     .factory('OrderProposal', OrderProposal)  
     .filter('filterAndSortProposalFields', filterAndSortProposalFields)
     .filter('filterNonEmptyProposalFields', filterNonEmptyProposalFields)
-    .constant('proposalFieldNames', ["proposalName", "proposalCompany", "proposalEmail", "proposalPhone", "proposalNotes"])    
+    .constant('proposalFieldNames', ["proposalName", "proposalCompany", "proposalEmail", "proposalPhone", "proposalNotes"])
+    .constant('proposalCompanyAddress','123 Main St.\nChicago, IL 60606') //Use "\n" to indicate line breaks e.g. 123 Main St.\nChicago, IL 60606
 ;
 
 //Directive (template)
@@ -82,7 +83,6 @@ function orderproposal() {
                             '<p ng-show="field.Value" ng-class="field.Name"><small>{{field.Value}}</small></p>',
                     '</div>',
                 '</div>',
-                '<div style="display:none"><img id="proposalTempImg" /></div>',
             '</div>',
         ].join('');
     }
@@ -163,25 +163,35 @@ function filterNonEmptyProposalFields(){
 }
 
 //Factory
-OrderProposal.$inject = ['$filter', 'Address', 'proposalFieldNames'];
-function OrderProposal($filter, Address, proposalFieldNames) {
+OrderProposal.$inject = ['$q','$http', '$filter', 'Address', 'proposalFieldNames', 'proposalCompanyAddress'];
+function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposalCompanyAddress) {
     var _user;
     var _order;
     var _shipAddress;
     var _billAddress;    
     var _proposalDetails = { Name:"", Company:"", Email:"", Phone:"", Notes:"" };
+    var _proposalImages = [];
 
-    function createProposal(){
+    function _getDocument(){
         return {
             content: [
                 //header
                 {
                     style:'text',
-                    layout:'headerLineOnly',
                     table: {
                         headerRows: 1,
                         widths: ['*', '*'],
                         body: _getHeaderContent()
+                    },
+                    layout: {
+                        hLineWidth:  function (i, node) {
+                            return (i === 1) ? 0.5 : 0;
+                        },
+                        vLineWidth: function (i, node) { return 0; },
+                        hLineColor: function (i, node) { return 'black'; },
+                        vLineColor: function (i, node) { return 'black'; },
+                        paddingLeft: function(i, node) { return 0; },
+                        paddingRight: function(i, node) { return 0; }
                     }
                     
                 },
@@ -189,6 +199,7 @@ function OrderProposal($filter, Address, proposalFieldNames) {
 
                 //proposal data
                 _getProposalDetailsContent(),
+                '\n',
                 '\n',
 
                 //shipping and billing
@@ -200,10 +211,10 @@ function OrderProposal($filter, Address, proposalFieldNames) {
                         body: _getAddressesContent()
                     },
                     layout: {
-                        hLineWidth:  function (i, node) { return 1; },
-                        vLineWidth: function (i, node) { return 1; },
-                        hLineColor: function (i, node) { return 'gray'; },
-                        vLineColor: function (i, node) { return 'gray'; },
+                        hLineWidth:  function (i, node) { return 0.5; },
+                        vLineWidth: function (i, node) { return 0.5; },
+                        hLineColor: function (i, node) { return 'black'; },
+                        vLineColor: function (i, node) { return 'black'; },
                         paddingLeft: function(i, node) { return 10; },
                         paddingRight: function(i, node) { return 10; },
                         // paddingTop: function(i, node) { return 2; },
@@ -215,19 +226,48 @@ function OrderProposal($filter, Address, proposalFieldNames) {
                 '\n',
 
                 //shipping method and account?
-                _getShippingMethod(),
+                {
+                    style:'text',
+                    table: {
+                        headerRows: 0,
+                        widths: ['auto'],
+                        body: _getShippingMethodTableContent()
+                    },
+                    layout: {
+                        hLineWidth:  function (i, node) {
+                            return (i === 1) ? 0 : 0.5;
+                        },
+                        vLineWidth: function (i, node) { return 0.5; },
+                        hLineColor: function (i, node) { return 'black'; },
+                        vLineColor: function (i, node) { return 'black'; }
+                        // paddingLeft: function(i, node) { return 4; },
+                        // paddingRight: function(i, node) { return 4; },
+                        // paddingTop: function(i, node) { return 2; },
+                        // paddingBottom: function(i, node) { return 2; },
+                        // fillColor: function (i, node) { return null; }
+                    }
+                },
                 '\n',
 
                 //line items
                 {
                     style: 'text',
-                    layout: 'lightHorizontalLines',
+                    //layout: 'lightHorizontalLines',
                     table: {
                         headerRows: 1,
-                        widths: ['10%', '25%', '40%', '12.5%', '12.5%'],
+                        widths: ['10%', '15%', '15%', '35%', '12.5%', '12.5%'],
                         body: _getLineItemsTableContent()
-                    }
-                    
+                    },
+                    layout: {
+                        hLineWidth:  function (i, node) {
+                            return (i === 0 || i === 1 || i === node.table.body.length) ? 0.5 : 0;
+                        },
+                        vLineWidth: function (i, node) {  
+                            return (i === 2) ? 0 : 0.5;
+                        },
+                        hLineColor: function (i, node) { return 'black'; },
+                        vLineColor: function (i, node) { return 'black'; }
+                    }                    
                 },
                 '\n',
 
@@ -240,17 +280,13 @@ function OrderProposal($filter, Address, proposalFieldNames) {
                         body: _getNotesAndTotalsContent()
                     },
                     layout: {
-                        hLineWidth:  function (i, node) { return 1; },
-                        vLineWidth: function (i, node) { return 1; },
-                        hLineColor: function (i, node) { return 'gray'; },
-                        vLineColor: function (i, node) { return 'gray'; }
-                        // paddingLeft: function(i, node) { return 4; },
-                        // paddingRight: function(i, node) { return 4; },
-                        // paddingTop: function(i, node) { return 2; },
-                        // paddingBottom: function(i, node) { return 2; },
-                        // fillColor: function (i, node) { return null; }
+                        hLineWidth:  function (i, node) { return 0.5; },
+                        vLineWidth: function (i, node) { return 0.5; },
+                        hLineColor: function (i, node) { return 'black'; },
+                        vLineColor: function (i, node) { return 'black'; }
                     }
-                }
+                },
+                '\n'
             ],
             styles: {
                 bold: {
@@ -270,12 +306,14 @@ function OrderProposal($filter, Address, proposalFieldNames) {
         };
     }
 
+//////////////Header
+
     function _getHeaderContent(){
         var rows = [];
 
         rows.push([
             _getLogoContent(),
-            { text:'PROPOSAL', style:['bold','right','title'] }
+            { text:'PROPOSAL', style:['bold','right','title'], margin:[0,30,0,0] }
         ]);
 
         rows.push([
@@ -286,16 +324,19 @@ function OrderProposal($filter, Address, proposalFieldNames) {
         return rows;
     }
 
-    function _getLogoContent(){
-        /*if(_user.Company.LogoUrl)
-            return { image:_getBase64URL(_user.Company.LogoUrl), height:100 };
-        else */
-            return "";
+    function _getLogoContent(){        
+        if(_user.Company.LogoUrl){
+            var dataUrl = _getDataUrl(_user.Company.LogoUrl);
+            if(dataUrl) return { image:dataUrl, fit: [100, 50] };
+        }
+        return "";
     }
 
     function _getCompanyAddress(){
-        return "";
+        return proposalCompanyAddress;
     }
+
+//////////////Proposal Contact fields
 
     function _getProposalDetailsContent(){
         var result = []
@@ -305,6 +346,8 @@ function OrderProposal($filter, Address, proposalFieldNames) {
         if(_proposalDetails.Email) result.push({ text:"Email: " + _proposalDetails.Email, style:'text' });
         return result;
     }
+
+//////////////Billing and Shipping
 
     function _getAddressesContent(){
         var rows = [];
@@ -339,19 +382,26 @@ function OrderProposal($filter, Address, proposalFieldNames) {
         return result;
     }
 
-    function _getShippingMethod(){
-        var result = [];
-        result.push({ text:'Ship Via', style:['text','bold'] });
-        if(_order.LineItems[0].ShipperName) result.push({ text:_order.LineItems[0].ShipperName, style:'text' });
-        return result;
+    function _getShippingMethodTableContent(){
+        var rows = [];
+        rows.push([{ text:'Ship Via', style:['bold'] }]);
+        
+        var shipMethod = "\n";
+        if(_order.LineItems[0].ShipperName) shipMethod = _order.LineItems[0].ShipperName;
+        rows.push([{ text:shipMethod }]);
+
+        return rows;
     }
+
+//////////////Line Items
 
     function _getLineItemsTableContent(){
         var rows = [];
         //Header
         rows.push([ 
             { text:'Qty', style:['right','bold'] },
-            { text:'Item #', style:['bold'] },
+            { text:'Item #', colSpan:2, style:['bold'] },
+            { text:'' },
             { text:'Description', style:['bold'] },
             { text:'Unit Price', style:['right','bold'] },
             { text:'Ext Price', style:['right','bold'] },
@@ -363,6 +413,7 @@ function OrderProposal($filter, Address, proposalFieldNames) {
                 rows.push([
                     { text:lineItem.Quantity, style:'right' },
                     lineItem.Product.ExternalID,
+                    _getLineItemImage(lineItem),
                     _getLineItemDescription(lineItem),
                     { text:$filter('culturecurrency')(lineItem.UnitPrice), style:'right' },
                     { text:$filter('culturecurrency')(lineItem.LineTotal), style:'right' }
@@ -371,6 +422,15 @@ function OrderProposal($filter, Address, proposalFieldNames) {
         }        
 
         return rows;
+    }
+
+    function _getLineItemImage(lineItem){
+        var imgUrl = (lineItem.Variant && lineItem.Variant.LargeImageUrl) ? lineItem.Variant.LargeImageUrl : (item.Product.SmallImageUrl);
+        if(imgUrl){
+            var dataUrl = _getDataUrl(imgUrl);
+            if(dataUrl) return { image:dataUrl, fit: [50, 100] };
+        }        
+        return "";
     }
 
     function _getLineItemDescription(lineItem){
@@ -391,35 +451,39 @@ function OrderProposal($filter, Address, proposalFieldNames) {
         }        
     }
 
+//////////////Notes and Totals
+
     function _getNotesAndTotalsContent(){
         var rows = [];
         rows.push([
             { text: "Notes: \n" + _proposalDetails.Notes, rowSpan:4 },
             { text:'\n', border: [true, false, true, false] },
-            { text:'Subtotal', border:[true,true,false,true] },
-            { text:$filter('culturecurrency')(_order.Subtotal), style:'right', border:[false,true,true,true] }
+            { text:'Subtotal', border:[true,true,true,false] },
+            { text:$filter('culturecurrency')(_order.Subtotal), style:'right', border:[true,true,true,false] }
         ]);
         rows.push([
             '',
             { text:'\n', border: [true, false, true, false] },
-            { text:'Shipping', border:[true,true,false,true] },
-            { text:$filter('culturecurrency')(_order.ShippingCost), style:'right', border:[false,true,true,true] }
+            { text:'Shipping', border:[true,false,true,false] },
+            { text:$filter('culturecurrency')(_order.ShippingCost), style:'right', border:[true,false,true,false] }
         ]);
         rows.push([
             '',
             { text:'\n', border: [true, false, true, false] },
-            { text:'Tax', border:[true,true,false,true] },
-            { text:$filter('culturecurrency')(_order.TaxCost), style:'right', border:[false,true,true,true] }
+            { text:'Tax', border:[true,false,true,false] },
+            { text:$filter('culturecurrency')(_order.TaxCost), style:'right', border:[true,false,true,false] }
         ]);
         rows.push([
             '',
             { text:'\n', border: [true, false, true, false] },
-            { text:'Total', style:'bold', border:[true,true,false,true] },
-            { text:$filter('culturecurrency')(_order.Total), style:['bold','right'], border:[false,true,true,true] }
+            { text:'Total', style:'bold', border:[true,false,true,true] },
+            { text:$filter('culturecurrency')(_order.Total), style:['bold','right'], border:[true,false,true,true] }
         ]);
 
         return rows;
     }
+
+//////////////Helpers
 
     function _formatPhone(phone){
         var result = "";
@@ -436,7 +500,34 @@ function OrderProposal($filter, Address, proposalFieldNames) {
         return result;
     }
 
-    function setup(order, user){
+    function _getDataUrl(imgUrl){
+        if(_proposalImages){
+            var dataUrl = _proposalImages[imgUrl];
+            if(dataUrl) return dataUrl;
+        }
+        return "";
+    }
+
+    function _getImageDataUrls(images){
+        return $http.post('https://www.premierprint.com/four51services/api/images/dataurls', images)
+            .then(
+                function(response) {
+                    if (typeof response.data === 'object') {
+                        return response.data;
+                    } else {
+                        // invalid response
+                        return $q.reject(response.data);
+                    }
+        
+                }, function(response) {
+                    // something went wrong
+                    return $q.reject(response.data);
+                }
+            );
+    }
+
+    function generateProposal(order, user, callback){
+        //Setup local variables
         _order = order;
         _user = user;
 
@@ -457,24 +548,44 @@ function OrderProposal($filter, Address, proposalFieldNames) {
             Address.get(_order.BillAddressID, function(add) {
                 _billAddress = add;
             })
-        }        
+        }
+
+        var images = [];
+        if(_user.Company.LogoUrl) images.push(_user.Company.LogoUrl);
+        if(_order && _order.LineItems && _order.LineItems.length > 0){
+            angular.forEach(_order.LineItems, function(lineItem){
+                var img = (lineItem.Variant && lineItem.Variant.LargeImageUrl) ? lineItem.Variant.LargeImageUrl : (item.Product.SmallImageUrl);
+                if(img) images.push(img);
+            });
+        }
+        _getImageDataUrls(images).then(
+            function(data) {
+                _proposalImages = data;
+                var docDefinition = _getDocument();
+                callback(docDefinition);
+            }, function(error) {
+                console.log("Error getting image data urls: " + error);
+                var docDefinition = _getDocument();
+                callback(docDefinition);
+            }
+        );
     }
 
     return {
         print: function(order, user) {
-            setup(order, user);
-		    var docDefinition = createProposal();
-            pdfMake.createPdf(docDefinition).print();
+            generateProposal(order, user, function(docDefinition){
+                pdfMake.createPdf(docDefinition).print();
+            });
 	    },
         download: function(order, user) {
-            _setup(order, user);
-		    var docDefinition = createProposal();
-            pdfMake.createPdf(docDefinition).download();
+            generateProposal(order, user, function(docDefinition){
+                pdfMake.createPdf(docDefinition).download();
+            });
 	    },
         open: function(order, user) {
-            setup(order, user);
-		    var docDefinition = createProposal();
-            pdfMake.createPdf(docDefinition).open();
+            generateProposal(order, user, function(docDefinition){
+                pdfMake.createPdf(docDefinition).open();
+            });
 	    },
     }
 }
