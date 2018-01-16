@@ -139,11 +139,11 @@ function ($scope, $routeParams, $location, $filter, $rootScope, $451, User, Orde
 	};
 
 	$scope.filterIsNotCustomDisplayOrderField = function(field){
-		return !_isCustomDisplayOrderField();
+		return !_isCustomDisplayOrderField(field);
 	}
 
 	function _isCustomDisplayOrderField(field){
-		return field.Name.toLowerCase().indexOf("proposal") === 0;
+		return (field && field.Name && field.Name.toLowerCase().indexOf("proposal") === 0);
 	}
 
 	// remove order fields from the Order section if they are to be displayed elsewhere
