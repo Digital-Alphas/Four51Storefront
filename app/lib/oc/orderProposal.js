@@ -37,10 +37,11 @@ function orderproposal() {
                     '<div>',
                         '<span>',
                             '<button class="btn btn-default" type="button" ng-click="printProposal()">',
-                               'Print Proposal',
+                                '<loadingindicator ng-show="printProposalIndicator" />',
+                                'Download Proposal',
                             '</button>',
                              '<button ng-hide="showProposalEdit" class="btn btn-info pull-right" type="button" ng-click="showProposalEdit = true" tabindex="-1">',
-                                 '{{ showProposalReview ? \'Edit\' : \'New\' }}',
+                                '{{ showProposalReview ? \'Edit\' : \'New\' }}',
                              '</button>',
                         '</span>',
                     '</div>',
@@ -94,6 +95,7 @@ function OrderProposalCtrl($scope, $routeParams, $filter, $rootScope, $451, Orde
     $scope.proposalIsConfigured = false;
     $scope.showProposalReview = false;
     $scope.showProposalEdit = false;
+    $scope.printProposalIndicator = false;
 
     //Check if any of the proposal order fields are enabled for this user
     angular.forEach($scope.proposal.OrderFields, function(field){
@@ -131,7 +133,8 @@ function OrderProposalCtrl($scope, $routeParams, $filter, $rootScope, $451, Orde
     }
 
     $scope.printProposal = function(){
-        OrderProposal.open($scope.proposal, $scope.$parent.user);
+        $scope.printProposalIndicator = true;
+        OrderProposal.download($scope.proposal, $scope.$parent.user, function(){ $scope.printProposalIndicator = false; });
     }
 }
 
@@ -572,19 +575,22 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
     }
 
     return {
-        print: function(order, user) {
+        print: function(order, user, callback) {
             generateProposal(order, user, function(docDefinition){
                 pdfMake.createPdf(docDefinition).print();
+                callback();
             });
 	    },
-        download: function(order, user) {
+        download: function(order, user, callback) {
             generateProposal(order, user, function(docDefinition){
-                pdfMake.createPdf(docDefinition).download();
+                pdfMake.createPdf(docDefinition).download("OrderProposal_" + $filter('date')(new Date(), 'yyyyMMddHHmmss'));
+                callback();
             });
 	    },
-        open: function(order, user) {
+        open: function(order, user, callback) {
             generateProposal(order, user, function(docDefinition){
                 pdfMake.createPdf(docDefinition).open();
+                callback();
             });
 	    },
     }
