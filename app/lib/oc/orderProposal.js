@@ -97,14 +97,16 @@ function OrderProposalCtrl($scope, $routeParams, $filter, $rootScope, $451, Orde
     $scope.showProposalEdit = false;
     $scope.printProposalIndicator = false;
 
-    //Check if any of the proposal order fields are enabled for this user
-    angular.forEach($scope.proposal.OrderFields, function(field){
-        angular.forEach(proposalFieldNames, function(proposalFieldName){
-            if(field.Name.toLowerCase() == proposalFieldName.toLowerCase()){
-                _initScopeSetup(field);
-            }
+    if($scope.proposal && $scope.proposal.OrderFields){
+        //Check if any of the proposal order fields are enabled for this user
+        angular.forEach($scope.proposal.OrderFields, function(field){
+            angular.forEach(proposalFieldNames, function(proposalFieldName){
+                if(field.Name.toLowerCase() == proposalFieldName.toLowerCase()){
+                    _initScopeSetup(field);
+                }
+            });
         });
-    });
+    }    
 
     function _initScopeSetup(field){
         $scope.proposalIsConfigured = true;
