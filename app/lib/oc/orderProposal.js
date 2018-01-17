@@ -428,7 +428,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
     }
 
     function _getLineItemImage(lineItem){
-        var imgUrl = (lineItem.Variant && lineItem.Variant.LargeImageUrl) ? lineItem.Variant.LargeImageUrl : (item.Product.SmallImageUrl);
+        var imgUrl = (lineItem.Variant && lineItem.Variant.LargeImageUrl) ? lineItem.Variant.LargeImageUrl : (lineItem.Product.SmallImageUrl);
         if(imgUrl){
             var dataUrl = _getDataUrl(imgUrl);
             if(dataUrl) return { image:dataUrl, fit: [50, 100] };
@@ -557,7 +557,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         if(_user.Company.LogoUrl) images.push(_user.Company.LogoUrl);
         if(_order && _order.LineItems && _order.LineItems.length > 0){
             angular.forEach(_order.LineItems, function(lineItem){
-                var img = (lineItem.Variant && lineItem.Variant.LargeImageUrl) ? lineItem.Variant.LargeImageUrl : (item.Product.SmallImageUrl);
+                var img = (lineItem.Variant && lineItem.Variant.LargeImageUrl) ? lineItem.Variant.LargeImageUrl : (lineItem.Product.SmallImageUrl);
                 if(img) images.push(img);
             });
         }
