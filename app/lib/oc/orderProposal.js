@@ -282,18 +282,35 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 
                 //Notes and totals
                 {
-                    style:'text',
-                    table: {
-                        headerRows: 0,
-                        widths: ['62.5%', '12.5%', '12.5%', '12.5%'],
-                        body: _getNotesAndTotalsContent()
-                    },
-                    layout: {
-                        hLineWidth:  function (i, node) { return 0.5; },
-                        vLineWidth: function (i, node) { return 0.5; },
-                        hLineColor: function (i, node) { return 'black'; },
-                        vLineColor: function (i, node) { return 'black'; }
-                    }
+                    columns:[
+                        {
+                            width:'62%',
+                            text: _getNotesContent(), 
+                            style:'text'
+                        },
+                        {
+                            width:'12%',    
+                            text:'\n'
+                        },
+                        {
+                            width:'26%',
+                            stack: [         
+                                {
+                                    style:'text',
+                                    table: {
+                                        widths: ["*", "*"],
+                                        body: _getTotalsContent()
+                                    },
+                                    layout: {
+                                        hLineWidth:  function (i, node) { return 0.5; },
+                                        vLineWidth: function (i, node) { return 0.5; },
+                                        hLineColor: function (i, node) { return 'black'; },
+                                        vLineColor: function (i, node) { return 'black'; }
+                                    }
+                                }
+                            ]    
+                        }
+                    ]
                 },
                 '\n'
             ],
@@ -462,29 +479,25 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 
 //////////////Notes and Totals
 
-    function _getNotesAndTotalsContent(){
+    function _getNotesContent(){
+        return "Notes: \n" +  _proposalDetails.Notes;
+    }
+
+    function _getTotalsContent(){
         var rows = [];
         rows.push([
-            { text: "Notes: \n" + _proposalDetails.Notes, rowSpan:4 },
-            { text:'\n', border: [true, false, true, false] },
             { text:'Subtotal', border:[true,true,true,false] },
             { text:$filter('culturecurrency')(_order.Subtotal), style:'right', border:[true,true,true,false] }
         ]);
         rows.push([
-            '',
-            { text:'\n', border: [true, false, true, false] },
             { text:'Shipping', border:[true,false,true,false] },
             { text:$filter('culturecurrency')(_order.ShippingCost), style:'right', border:[true,false,true,false] }
         ]);
         rows.push([
-            '',
-            { text:'\n', border: [true, false, true, false] },
             { text:'Tax', border:[true,false,true,false] },
             { text:$filter('culturecurrency')(_order.TaxCost), style:'right', border:[true,false,true,false] }
         ]);
         rows.push([
-            '',
-            { text:'\n', border: [true, false, true, false] },
             { text:'Total', style:'bold', border:[true,false,true,true] },
             { text:$filter('culturecurrency')(_order.Total), style:['bold','right'], border:[true,false,true,true] }
         ]);
