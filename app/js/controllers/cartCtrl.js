@@ -1,5 +1,5 @@
-four51.app.controller('CartViewCtrl', ['$scope', '$routeParams', '$location', '$451', 'Order', 'OrderConfig', 'User',
-function ($scope, $routeParams, $location, $451, Order, OrderConfig, User) {
+four51.app.controller('CartViewCtrl', ['$scope', '$routeParams', '$location', '$filter', '$451', 'Order', 'OrderConfig', 'User',
+function ($scope, $routeParams, $location, $filter, $451, Order, OrderConfig, User) {
 	$scope.isEditforApproval = $routeParams.id != null && $scope.user.Permissions.contains('EditApprovalOrder');
 	if ($scope.isEditforApproval) {
 		Order.get($routeParams.id, function(order) {
@@ -102,20 +102,69 @@ function ($scope, $routeParams, $location, $451, Order, OrderConfig, User) {
 
 	$scope.checkOut = function() {
 		$scope.displayLoadingIndicator = true;
-		if (!$scope.isEditforApproval)
-			OrderConfig.address($scope.currentOrder, $scope.user);
-		Order.save($scope.currentOrder,
-			function(data) {
-				$scope.currentOrder = data;
-                $location.path($scope.isEditforApproval ? 'checkout/' + $routeParams.id : 'checkout');
-				$scope.displayLoadingIndicator = false;
-			},
-			function(ex) {
-				$scope.errorMessage = ex.Message;
-				$scope.displayLoadingIndicator = false;
-			}
-		);
+		$scope.customValidationErrors = [];
+		if(validateStaticSpecQuantityRestrictions()){
+			if (!$scope.isEditforApproval)
+				OrderConfig.address($scope.currentOrder, $scope.user);
+			Order.save($scope.currentOrder,
+				function(data) {
+					$scope.currentOrder = data;
+					$location.path($scope.isEditforApproval ? 'checkout/' + $routeParams.id : 'checkout');
+					$scope.displayLoadingIndicator = false;
+				},
+				function(ex) {
+					$scope.errorMessage = ex.Message;
+					$scope.displayLoadingIndicator = false;
+				}
+			);
+		} else {
+			$scope.displayLoadingIndicator = false;
+		}
 	};
+
+	$scope.customValidationErrors = [];
+	function validateStaticSpecQuantityRestrictions(){
+		var isValid = true;
+
+		if($scope.currentOrder && $scope.currentOrder.LineItems){
+			var prodQtys = [];
+			angular.forEach($scope.currentOrder.LineItems, function(li){
+				//Look for ProductMatrix min and max qty static specs
+				if(li.Product.StaticSpecGroups && li.Product.StaticSpecGroups.Matrix){
+					var loggedProd = $filter('filter')(prodQtys, { ExternalID: li.Product.ExternalID });
+					if(loggedProd && loggedProd.length > 0){
+						//If product has already been logged then update the total quantity
+						loggedProd[0].TotalQty += parseInt(li.Quantity);
+					} else {
+						//Log product and quantities
+						prodQtys.push({
+							ExternalID: li.Product.ExternalID,
+							Name: li.Product.Name,
+							MinTotalQty: (li.Product.StaticSpecGroups.Matrix.Specs.MinQty && li.Product.StandardPriceSchedule.MinQuantity == 1) ? (parseInt(li.Product.StaticSpecGroups.Matrix.Specs.MinQty.Value)) : null,
+							MaxTotalQty: (li.Product.StaticSpecGroups.Matrix.Specs.MaxQty) ? (parseInt(li.Product.StaticSpecGroups.Matrix.Specs.MaxQty.Value)) : null,
+							TotalQty: parseInt(li.Quantity)
+						});
+					}
+				}
+			});
+
+			if(prodQtys){
+				angular.forEach(prodQtys, function(product){
+					var $error = "";
+					if (product.MinTotalQty && product.TotalQty < product.MinTotalQty) {
+						$scope.customValidationErrors.push("Total quantity must be equal or greater than " + product.MinTotalQty + " for " + product.Name);
+						isValid = false;
+					}
+			
+					if (product.MaxTotalQty && product.TotalQty > product.MaxTotalQty) {
+						$scope.customValidationErrors.push("Total quantity must be equal or less than " + product.MaxTotalQty + " for " + product.Name + "\n");
+						isValid = false;
+					}
+				});
+			}
+		}
+		return isValid;
+	}
 
 	$scope.$watch('currentOrder.LineItems', function(newval) {
 		var newTotal = 0;

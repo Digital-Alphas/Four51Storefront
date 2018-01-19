@@ -181,16 +181,16 @@
                 <div class="view-response-message alert-success text-center" alert-show="actionMessage">
                     <p>{{actionMessage | r | xlat}}</p>
                 </div>
-                <div class="view-response-message alert-success text-center" alert-show="errorMessage">
+                <div class="view-response-message alert-warning text-center" ng-show="errorMessage">
                     <p>{{errorMessage | r | xlat}}</p>
                 </div>
                 <div class="view-response-message alert-danger text-center" alert-show="gcMessage">{{gcMessage}}</div>
-                <div class="view-error-message" ng-show="cart.$error.required.length > 0">
+                <div class="view-error-message" ng-show="cart.$error.required.length > 0 || customValidationErrors.length > 0">
                     <ul class="alert-warning">
                         <li class="text-center">
                             <span class="badge">
                                 <i class="fa fa-exclamation-circle fa-inverse"></i>
-                                {{cart.$error.required.length}}
+                                {{cart.$error.required.length + customValidationErrors.length}}
                             </span>
                         </li>
                         <li class="text-center">
@@ -199,10 +199,11 @@
                                 <li ng-if="cart.costcenter.$invalid">{{('Cost Center' | r) + ' is ' + ('Required' | rl) | xlat}}</li>
                                 <li ng-if="cart.qtyInput.$invalid">{{'You have entered an invalid ' + ('Quantity' | rl) | xlat}}</li>
                                 <li ng-if="cart.kitValidation.$invalid">{{'The kit has unconfigured items. You must configure them before continuing.' | r | xlat}}</li>
+                                <li ng-repeat="customError in customValidationErrors">{{ customError }}</li>
                             </ul>
                         </li>
                         <li class="text-center">
-                            <a ng-show="cart.$error.required.length + (errorMessage ? 1 : 0) > 1">
+                            <a ng-show="cart.$error.required.length + customValidationErrors.length + (errorMessage ? 1 : 0) > 1">
                                 <i class="fa fa-caret-down" ng-click="errorSection = 'open'" ng-hide="errorSection == 'open'"></i>
                                 <i class="fa fa-caret-up" ng-click="errorSection = ''" ng-show="errorSection == 'open'"></i>
                             </a>
