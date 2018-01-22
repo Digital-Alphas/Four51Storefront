@@ -602,7 +602,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 	    },
         download: function(order, user, callback) {
             generateProposal(order, user, function(docDefinition){
-                pdfMake.createPdf(docDefinition).download("OrderProposal_" + $filter('date')(new Date(), 'yyyyMMddHHmmss'));
+                pdfMake.createPdf(docDefinition).download("OrderProposal_" + $filter('date')(new Date(), 'yyyyMMddHHmmss') + ".pdf");
                 callback();
             });
 	    },
