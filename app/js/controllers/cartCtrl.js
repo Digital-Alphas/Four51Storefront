@@ -140,7 +140,7 @@ function ($scope, $routeParams, $location, $filter, $451, Order, OrderConfig, Us
 						prodQtys.push({
 							ExternalID: li.Product.ExternalID,
 							Name: li.Product.Name,
-							MinTotalQty: (li.Product.StaticSpecGroups.Matrix.Specs.MinQty && li.Product.StandardPriceSchedule.MinQuantity == 1) ? (parseInt(li.Product.StaticSpecGroups.Matrix.Specs.MinQty.Value)) : null,
+							MinTotalQty: (li.Product.StaticSpecGroups.Matrix.Specs.MinQty && (!li.Product.StandardPriceSchedule || li.Product.StandardPriceSchedule.MinQuantity == 1)) ? (parseInt(li.Product.StaticSpecGroups.Matrix.Specs.MinQty.Value)) : null,
 							MaxTotalQty: (li.Product.StaticSpecGroups.Matrix.Specs.MaxQty) ? (parseInt(li.Product.StaticSpecGroups.Matrix.Specs.MaxQty.Value)) : null,
 							TotalQty: parseInt(li.Quantity)
 						});
