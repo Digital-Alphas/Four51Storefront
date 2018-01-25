@@ -8,8 +8,10 @@ angular.module('PremierPrint-OrderProposal')
     .factory('OrderProposal', OrderProposal)  
     .filter('filterAndSortProposalFields', filterAndSortProposalFields)
     .filter('filterNonEmptyProposalFields', filterNonEmptyProposalFields)
-    .constant('proposalFieldNames', ["proposalName", "proposalCompany", "proposalEmail", "proposalPhone", "proposalNotes"])
-    .constant('proposalCompanyAddress','123 Main St.\nChicago, IL 60606') //Use "\n" to indicate line breaks e.g. 123 Main St.\nChicago, IL 60606
+    .constant('proposalFieldNames', ["proposalName", "proposalCompany", "proposalEmail", "proposalPhone",
+                                    "proposalClientName", "proposalClientCompany", "proposalClientLocation", "proposalClientEmail", "proposalClientPhone", "proposalNotes"])
+    .constant('proposalCompanyName','')
+    .constant('proposalCompanyAddress','') //Use "\n" to indicate line breaks e.g. 123 Main St.\nChicago, IL 60606
 ;
 
 //Directive (template)
@@ -35,11 +37,7 @@ function orderproposal() {
                 '</div>',
                 '<div collapse="$parent.checkOutSection != \'proposal\'" class="panel-body">',
                     '<div>',
-                        '<span>',
-                            '<button class="btn btn-default" type="button" ng-click="printProposal()">',
-                                '<loadingindicator ng-show="printProposalIndicator" />',
-                                'Download Proposal',
-                            '</button>',
+                        '<span class="btn-group">',
                              '<button ng-hide="showProposalEdit" class="btn btn-info pull-right" type="button" ng-click="showProposalEdit = true" tabindex="-1">',
                                 '{{ showProposalReview ? \'Edit\' : \'New\' }}',
                              '</button>',
@@ -47,26 +45,51 @@ function orderproposal() {
                     '</div>',
                     '<div ng-hide="!showProposalEdit">',
                         '<form name="proposalEdit" ng-submit="save()" class="view-form-icon">',
-                            '<div ng-repeat="field in proposal.OrderFields | filterAndSortProposalFields">',
-                                '<div ng-if="field.Name == \'proposalCompany\'">',
-                                   '<label>{{ field.Label | xlat }}</label>',
-                                    '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
-                                    '<i class="fa fa-user"></i>',
-                                '</div>',
+                            '<div ng-repeat="field in proposal.OrderFields | filterAndSortProposalFields">',                                
                                 '<div ng-if="field.Name == \'proposalName\'">',
                                     '<label>{{ field.Label | xlat }}</label>',
                                     '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
                                     '<i class="fa fa-user"></i>',
+                                '</div>',
+                                '<div ng-if="field.Name == \'proposalCompany\'">',
+                                    '<label>{{ field.Label | xlat }}</label>',
+                                    '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
+                                    '<i class="fa fa-user"></i>',
+                                '</div>',
+                                '<div ng-if="field.Name == \'proposalEmail\'">',
+                                    '<label>{{ field.Label | xlat }}</label>',
+                                    '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
+                                    '<i class="fa fa-envelope"></i>',
                                 '</div>',
                                 '<div ng-if="field.Name == \'proposalPhone\'">',
                                     '<label>{{ field.Label | xlat }}</label>',
                                     '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" ui-mask="{{field.MaskedInput}}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
                                     '<i class="fa fa-phone"></i>',
                                 '</div>',
-                                '<div ng-if="field.Name == \'proposalEmail\'">',
+                                '<div ng-if="field.Name == \'proposalClientName\'">',
+                                        '<label>{{ field.Label | xlat }}</label>',
+                                        '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
+                                        '<i class="fa fa-user"></i>',
+                                    '</div>',
+                                '<div ng-if="field.Name == \'proposalClientCompany\'">',
+                                    '<label>{{ field.Label | xlat }}</label>',
+                                    '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
+                                    '<i class="fa fa-user"></i>',
+                                '</div>',
+                                '<div ng-if="field.Name == \'proposalClientLocation\'">',
+                                    '<label>{{ field.Label | xlat }}</label>',
+                                    '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
+                                    '<i class="fa fa-map-marker"></i>',
+                                '</div>',
+                                '<div ng-if="field.Name == \'proposalClientEmail\'">',
                                     '<label>{{ field.Label | xlat }}</label>',
                                     '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
                                     '<i class="fa fa-envelope"></i>',
+                                '</div>',
+                                '<div ng-if="field.Name == \'proposalClientPhone\'">',
+                                    '<label>{{ field.Label | xlat }}</label>',
+                                    '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" ui-mask="{{field.MaskedInput}}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
+                                    '<i class="fa fa-phone"></i>',
                                 '</div>',
                                 '<div ng-if="field.Name == \'proposalNotes\'">',
                                     '<label>{{ field.Label | xlat }}</label>',
@@ -84,8 +107,17 @@ function orderproposal() {
                     '</div>',
                     '<div ng-hide="!showProposalReview || showProposalEdit" class="order-location">',
                         '<div ng-repeat="field in proposal.OrderFields | filterAndSortProposalFields">',
-                            '<p ng-show="field.Value && $last">&nbsp;</p>',
+                            '<p ng-show="field.Value && (field.Name == \'proposalNotes\' || field.Name == \'proposalClientName\')">&nbsp;</p>',
                             '<p ng-show="field.Value" ng-class="field.Name"><small>{{field.Value}}</small></p>',
+                        '</div>',
+                    '</div>',
+                    '<div ng-hide="!showProposalReview || showProposalEdit" style="margin-top:15px" >',
+                        '<span class="btn-group">',
+                            '<button class="btn btn-default pull-right" type="button" ng-click="printProposal()">',
+                                '<loadingindicator ng-show="printProposalIndicator" />',
+                                'Create Proposal',
+                            '</button>',
+                        '</span>',
                     '</div>',
                 '</div>',
             '</div>',
@@ -172,13 +204,13 @@ function filterNonEmptyProposalFields(){
 }
 
 //Factory
-OrderProposal.$inject = ['$q','$http', '$filter', 'Address', 'proposalFieldNames', 'proposalCompanyAddress'];
-function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposalCompanyAddress) {
+OrderProposal.$inject = ['$q','$http', '$filter', 'Address', 'proposalFieldNames', 'proposalCompanyName', 'proposalCompanyAddress'];
+function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposalCompanyName, proposalCompanyAddress) {
     var _user;
     var _order;
     var _shipAddress;
     var _billAddress;    
-    var _proposalDetails = { Name:"", Company:"", Email:"", Phone:"", Notes:"" };
+    var _proposalDetails = { Name:"", Company:"", Email:"", Phone:"", Notes:"", ClientName:"", ClientCompany:"", ClientEmail:"", ClientPhone:"", ClientLocation:"" };
     var _proposalImages = [];
 
     function _getDocument(){
@@ -209,8 +241,11 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                 //proposal data
                 _getProposalDetailsContent(),
                 '\n',
+                _getProposalClientDetailsContent(),
+                '\n',
                 '\n',
 
+                /*
                 //shipping and billing
                 {
                     style:'text',
@@ -257,6 +292,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                     }
                 },
                 '\n',
+                */
 
                 //line items
                 {
@@ -264,6 +300,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                     //layout: 'lightHorizontalLines',
                     table: {
                         headerRows: 1,
+                        dontBreakRows: true,
                         widths: ['10%', '15%', '15%', '35%', '12.5%', '12.5%'],
                         body: _getLineItemsTableContent()
                     },
@@ -280,6 +317,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                 },
                 '\n',
 
+                /*
                 //Notes and totals
                 {
                     columns:[
@@ -313,6 +351,13 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                     ]
                 },
                 '\n'
+                */
+                {
+                    text: _getNotesContent(), 
+                    style:'text'
+                }
+                ,                
+                '\n'
             ],
             styles: {
                 bold: {
@@ -343,7 +388,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         ]);
 
         rows.push([
-            [ _user.Company.Name, _getCompanyAddress() ],
+            [ _getCompanyName(), _getCompanyAddress() ],
             { text:'Date: ' + $filter('date')(new Date(), 'MM/dd/yyyy'), style:'right' }
         ]);
 
@@ -358,6 +403,14 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         return "";
     }
 
+    function _getCompanyName(){
+        if(proposalCompanyName){
+            return proposalCompanyName;
+        } else {
+            return _user.Company.Name;
+        }
+    }
+
     function _getCompanyAddress(){
         return proposalCompanyAddress;
     }
@@ -367,9 +420,19 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
     function _getProposalDetailsContent(){
         var result = []
         if(_proposalDetails.Company) result.push({ text:_proposalDetails.Company, style:['text','bold'] });
-        if(_proposalDetails.Name) result.push({ text:_proposalDetails.Name, style:['text','bold'] });        
-        if(_proposalDetails.Phone) result.push({ text:"Phone: " + _formatPhone(_proposalDetails.Phone), style:'text' });
+        if(_proposalDetails.Name) result.push({ text:_proposalDetails.Name, style:['text','bold'] });
         if(_proposalDetails.Email) result.push({ text:"Email: " + _proposalDetails.Email, style:'text' });
+        if(_proposalDetails.Phone) result.push({ text:"Phone: " + _formatPhone(_proposalDetails.Phone), style:'text' });        
+        return result;
+    }
+
+    function _getProposalClientDetailsContent(){
+        var result = []
+        if(_proposalDetails.ClientCompany) result.push({ text:_proposalDetails.ClientCompany, style:['text','bold'] });
+        if(_proposalDetails.ClientName) result.push({ text:_proposalDetails.ClientName, style:['text','bold'] });
+        if(_proposalDetails.ClientLocation) result.push({ text:"Email: " + _proposalDetails.ClientLocation, style:'text' });
+        if(_proposalDetails.ClientEmail) result.push({ text:"Email: " + _proposalDetails.ClientEmail, style:'text' });
+        if(_proposalDetails.ClientPhone) result.push({ text:"Phone: " + _formatPhone(_proposalDetails.ClientPhone), style:'text' });        
         return result;
     }
 
@@ -402,8 +465,8 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
             if(address.Street2) result.push(address.Street2 + '\n');
             if(address.City || address.State || address.Zip) result.push(address.City + ((address.City && address.State) ? ', ':'') + address.State + ' ' + address.Zip + '\n');
             result.push('\n');
-            if(address.Phone) result.push("Phone: " + _formatPhone(address.Phone) + '\n');
             if(address.Email) result.push("Email: " + address.Email + '\n');
+            if(address.Phone) result.push("Phone: " + _formatPhone(address.Phone) + '\n');            
         }
         return result;
     }
@@ -480,7 +543,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 //////////////Notes and Totals
 
     function _getNotesContent(){
-        return "Notes: \n" +  _proposalDetails.Notes;
+        return "Proposal Notes: \n" +  _proposalDetails.Notes;
     }
 
     function _getTotalsContent(){
@@ -516,7 +579,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
             //check if number length equals to 10
             if (phone.length == 10) {
                 //reformat and return phone number
-                result = phone.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
+                result = phone.replace(/(\d{3})(\d{3})(\d{4})/, "$1.$2.$3");
             }
         }
         return result;
@@ -558,7 +621,12 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         _proposalDetails.Company = pfields[1].Value;
         _proposalDetails.Email = pfields[2].Value;
         _proposalDetails.Phone = pfields[3].Value;
-        _proposalDetails.Notes = pfields[4].Value;
+        _proposalDetails.ClientName = pfields[4].Value;
+        _proposalDetails.ClientCompany = pfields[5].Value;
+        _proposalDetails.ClientLocation = pfields[6].Value;
+        _proposalDetails.ClientEmail = pfields[7].Value;
+        _proposalDetails.ClientPhone = pfields[8].Value;        
+        _proposalDetails.Notes = pfields[9].Value;
 
         if(_order && _order.ShipAddressID){
             Address.get(_order.ShipAddressID, function(add) {
