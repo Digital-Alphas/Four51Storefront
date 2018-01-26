@@ -373,7 +373,8 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                     fontSize:14
                 }
             },
-            pageMargins: [ 20, 20, 20, 20 ]
+            pageMargins: [ 20, 20, 20, 20 ],
+            pageSize: 'LETTER'
         };
     }
 
@@ -611,22 +612,29 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
             );
     }
 
+    function _getFieldValue(fields, fieldName){
+        var results = $filter('filter')(fields, { Name: fieldName })
+        if(results && results.length > 0)
+            return results[0].Value;
+        else
+            return "";
+    }
+
     function generateProposal(order, user, callback){
         //Setup local variables
         _order = order;
         _user = user;
 
-        var pfields = $filter('filterAndSortProposalFields')(_order.OrderFields);
-        _proposalDetails.Name = pfields[0].Value;
-        _proposalDetails.Company = pfields[1].Value;
-        _proposalDetails.Email = pfields[2].Value;
-        _proposalDetails.Phone = pfields[3].Value;
-        _proposalDetails.ClientName = pfields[4].Value;
-        _proposalDetails.ClientCompany = pfields[5].Value;
-        _proposalDetails.ClientLocation = pfields[6].Value;
-        _proposalDetails.ClientEmail = pfields[7].Value;
-        _proposalDetails.ClientPhone = pfields[8].Value;        
-        _proposalDetails.Notes = pfields[9].Value;
+        _proposalDetails.Name = _getFieldValue(_order.OrderFields, "proposalName" );
+        _proposalDetails.Company = _getFieldValue(_order.OrderFields, "proposalCompany" );
+        _proposalDetails.Email = _getFieldValue(_order.OrderFields, "proposalEmail" );
+        _proposalDetails.Phone = _getFieldValue(_order.OrderFields, "proposalPhone" );
+        _proposalDetails.ClientName = _getFieldValue(_order.OrderFields, "proposalClientName" );
+        _proposalDetails.ClientCompany = _getFieldValue(_order.OrderFields, "proposalClientCompany" );
+        _proposalDetails.ClientLocation = _getFieldValue(_order.OrderFields, "proposalClientLocation" );
+        _proposalDetails.ClientEmail = _getFieldValue(_order.OrderFields, "proposalClientEmail" );
+        _proposalDetails.ClientPhone = _getFieldValue(_order.OrderFields, "proposalClientPhone" );
+        _proposalDetails.Notes = _getFieldValue(_order.OrderFields, "proposalNotes" );
 
         if(_order && _order.ShipAddressID){
             Address.get(_order.ShipAddressID, function(add) {
