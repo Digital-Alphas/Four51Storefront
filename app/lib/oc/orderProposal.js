@@ -12,6 +12,7 @@ angular.module('PremierPrint-OrderProposal')
                                     "proposalClientName", "proposalClientCompany", "proposalClientLocation", "proposalClientEmail", "proposalClientPhone", "proposalNotes"])
     .constant('proposalCompanyName','')
     .constant('proposalCompanyAddress','') //Use "\n" to indicate line breaks e.g. 123 Main St.\nChicago, IL 60606
+    .constant('proposalFooterDisclaimer', '')
 ;
 
 //Directive (template)
@@ -204,38 +205,22 @@ function filterNonEmptyProposalFields(){
 }
 
 //Factory
-OrderProposal.$inject = ['$q','$http', '$filter', 'Address', 'proposalFieldNames', 'proposalCompanyName', 'proposalCompanyAddress'];
-function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposalCompanyName, proposalCompanyAddress) {
+OrderProposal.$inject = ['$q','$http', '$filter', 'Address', 'proposalFieldNames', 'proposalCompanyName', 'proposalCompanyAddress', 'proposalFooterDisclaimer'];
+function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposalCompanyName, proposalCompanyAddress, proposalFooterDisclaimer) {
     var _user;
     var _order;
     var _shipAddress;
     var _billAddress;    
     var _proposalDetails = { Name:"", Company:"", Email:"", Phone:"", Notes:"", ClientName:"", ClientCompany:"", ClientEmail:"", ClientPhone:"", ClientLocation:"" };
     var _proposalImages = [];
+    var _lineColor = "black";
+    var _lineWidth = 0.5;
 
     function _getDocument(){
         return {
             content: [
                 //header
-                {
-                    style:'text',
-                    table: {
-                        headerRows: 1,
-                        widths: ['*', '*'],
-                        body: _getHeaderContent()
-                    },
-                    layout: {
-                        hLineWidth:  function (i, node) {
-                            return (i === 1) ? 0.5 : 0;
-                        },
-                        vLineWidth: function (i, node) { return 0; },
-                        hLineColor: function (i, node) { return 'black'; },
-                        vLineColor: function (i, node) { return 'black'; },
-                        paddingLeft: function(i, node) { return 0; },
-                        paddingRight: function(i, node) { return 0; }
-                    }
-                    
-                },
+                _getHeaderContent(),
                 '\n',
 
                 //proposal data
@@ -247,118 +232,27 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 
                 /*
                 //shipping and billing
-                {
-                    style:'text',
-                    table: {
-                        headerRows: 0,
-                        widths: ['43.75%', '12.5%', '43.75%'],
-                        body: _getAddressesContent()
-                    },
-                    layout: {
-                        hLineWidth:  function (i, node) { return 0.5; },
-                        vLineWidth: function (i, node) { return 0.5; },
-                        hLineColor: function (i, node) { return 'black'; },
-                        vLineColor: function (i, node) { return 'black'; },
-                        paddingLeft: function(i, node) { return 10; },
-                        paddingRight: function(i, node) { return 10; },
-                        // paddingTop: function(i, node) { return 2; },
-                        // paddingBottom: function(i, node) { return 2; },
-                        // fillColor: function (i, node) { return null; }
-                    },
-                    margin: [30, 0]
-                },         
+                _getShippingAndBillingContent(),         
                 '\n',
+                */
 
-                //shipping method and account?
-                {
-                    style:'text',
-                    table: {
-                        headerRows: 0,
-                        widths: ['auto'],
-                        body: _getShippingMethodTableContent()
-                    },
-                    layout: {
-                        hLineWidth:  function (i, node) {
-                            return (i === 1) ? 0 : 0.5;
-                        },
-                        vLineWidth: function (i, node) { return 0.5; },
-                        hLineColor: function (i, node) { return 'black'; },
-                        vLineColor: function (i, node) { return 'black'; }
-                        // paddingLeft: function(i, node) { return 4; },
-                        // paddingRight: function(i, node) { return 4; },
-                        // paddingTop: function(i, node) { return 2; },
-                        // paddingBottom: function(i, node) { return 2; },
-                        // fillColor: function (i, node) { return null; }
-                    }
-                },
+                /*
+                //shipping method
+                _getShippingMethodContent(),
                 '\n',
                 */
 
                 //line items
-                {
-                    style: 'text',
-                    //layout: 'lightHorizontalLines',
-                    table: {
-                        headerRows: 1,
-                        dontBreakRows: true,
-                        widths: ['10%', '15%', '15%', '35%', '12.5%', '12.5%'],
-                        body: _getLineItemsTableContent()
-                    },
-                    layout: {
-                        hLineWidth:  function (i, node) {
-                            return (i === 0 || i === 1 || i === node.table.body.length) ? 0.5 : 0;
-                        },
-                        vLineWidth: function (i, node) {  
-                            return (i === 2) ? 0 : 0.5;
-                        },
-                        hLineColor: function (i, node) { return 'black'; },
-                        vLineColor: function (i, node) { return 'black'; }
-                    }                    
-                },
+                _getLineItemsContent(),
                 '\n',
 
-                /*
                 //Notes and totals
-                {
-                    columns:[
-                        {
-                            width:'62%',
-                            text: _getNotesContent(), 
-                            style:'text'
-                        },
-                        {
-                            width:'12%',    
-                            text:'\n'
-                        },
-                        {
-                            width:'26%',
-                            stack: [         
-                                {
-                                    style:'text',
-                                    table: {
-                                        widths: ["*", "*"],
-                                        body: _getTotalsContent()
-                                    },
-                                    layout: {
-                                        hLineWidth:  function (i, node) { return 0.5; },
-                                        vLineWidth: function (i, node) { return 0.5; },
-                                        hLineColor: function (i, node) { return 'black'; },
-                                        vLineColor: function (i, node) { return 'black'; }
-                                    }
-                                }
-                            ]    
-                        }
-                    ]
-                },
-                '\n'
-                */
-                {
-                    text: _getNotesContent(), 
-                    style:'text'
-                }
-                ,                
+                _getNotesAndTotalsContent(),
                 '\n'
             ],
+            footer: function(currentPage, pageCount) {
+                return _getFooter(currentPage, pageCount);
+            },
             styles: {
                 bold: {
                     bold:true
@@ -373,7 +267,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                     fontSize:14
                 }
             },
-            pageMargins: [ 20, 20, 20, 20 ],
+            pageMargins: [ 20, 20, 20, 60 ],
             pageSize: 'LETTER'
         };
     }
@@ -381,10 +275,32 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 //////////////Header
 
     function _getHeaderContent(){
+        return {
+            style:'text',
+            table: {
+                headerRows: 1,
+                widths: ['*', '*'],
+                body: _getHeaderTableBody()
+            },
+            layout: {
+                hLineWidth:  function (i, node) {
+                    return (i === 1) ? _lineWidth : 0;
+                },
+                vLineWidth: function (i, node) { return 0; },
+                hLineColor: function (i, node) { return _lineColor; },
+                vLineColor: function (i, node) { return _lineColor; },
+                paddingLeft: function(i, node) { return 0; },
+                paddingRight: function(i, node) { return 0; }
+            }
+            
+        }
+    }
+
+    function _getHeaderTableBody(){
         var rows = [];
 
         rows.push([
-            _getLogoContent(),
+            _getLogo(),
             { text:'PROPOSAL', style:['bold','right','title'], margin:[0,30,0,0] }
         ]);
 
@@ -396,7 +312,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         return rows;
     }
 
-    function _getLogoContent(){        
+    function _getLogo(){        
         if(_user.Company.LogoUrl){
             var dataUrl = _getDataUrl(_user.Company.LogoUrl);
             if(dataUrl) return { image:dataUrl, fit: [100, 50] };
@@ -416,10 +332,40 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         return proposalCompanyAddress;
     }
 
+//////////////Footer
+    function _getFooter(currentPage, pageCount){
+        if(currentPage == pageCount){
+            return [
+                {
+                    columns:[
+                        {
+                            width:'62%',
+                            text: "Customer Signature: _________________________________________________________________"
+                        },
+                        {
+                            width:'12%',    
+                            text:'\n'
+                        },
+                        {
+                            width:'26%',
+                            text: "Date: ______________________________"
+                        }
+                    ],
+                    style:['text','bold'],
+                    margin: [ 20, 0, 20, 10 ]
+                },
+                { text:proposalFooterDisclaimer, style:'text', margin: [ 20, 10, 20, 20 ], alignment:'center' }
+            ]
+        } else {
+            return "";
+        }
+    }
+
 //////////////Proposal Contact fields
 
     function _getProposalDetailsContent(){
         var result = []
+        result.push({ text:"Sales Representative:", style:['text','bold'] });
         if(_proposalDetails.Company) result.push({ text:_proposalDetails.Company, style:['text','bold'] });
         if(_proposalDetails.Name) result.push({ text:_proposalDetails.Name, style:['text','bold'] });
         if(_proposalDetails.Email) result.push({ text:"Email: " + _proposalDetails.Email, style:'text' });
@@ -429,6 +375,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 
     function _getProposalClientDetailsContent(){
         var result = []
+        result.push({ text:"Prepared for:", style:['text','bold'] });
         if(_proposalDetails.ClientCompany) result.push({ text:_proposalDetails.ClientCompany, style:['text','bold'] });
         if(_proposalDetails.ClientName) result.push({ text:_proposalDetails.ClientName, style:['text','bold'] });
         if(_proposalDetails.ClientLocation) result.push({ text:"Email: " + _proposalDetails.ClientLocation, style:'text' });
@@ -439,7 +386,27 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 
 //////////////Billing and Shipping
 
-    function _getAddressesContent(){
+    function _getShippingAndBillingContent(){
+        return {
+            style:'text',
+            table: {
+                headerRows: 0,
+                widths: ['43.75%', '12.5%', '43.75%'],
+                body: _getAddressesTableBody()
+            },
+            layout: {
+                hLineWidth:  function (i, node) { return _lineWidth; },
+                vLineWidth: function (i, node) { return _lineWidth; },
+                hLineColor: function (i, node) { return _lineColor; },
+                vLineColor: function (i, node) { return _lineColor; },
+                paddingLeft: function(i, node) { return 10; },
+                paddingRight: function(i, node) { return 10; }
+            },
+            margin: [30, 0]
+        }
+    }
+
+    function _getAddressesTableBody(){
         var rows = [];
         
         rows.push([
@@ -472,7 +439,26 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         return result;
     }
 
-    function _getShippingMethodTableContent(){
+    function _getShippingMethodContent(){
+        return {
+            style:'text',
+            table: {
+                headerRows: 0,
+                widths: ['auto'],
+                body: _getShippingMethodTableBody()
+            },
+            layout: {
+                hLineWidth:  function (i, node) {
+                    return (i === 1) ? 0 : _lineWidth;
+                },
+                vLineWidth: function (i, node) { return _lineWidth; },
+                hLineColor: function (i, node) { return _lineColor; },
+                vLineColor: function (i, node) { return _lineColor; }
+            }
+        }
+    }
+
+    function _getShippingMethodTableBody(){
         var rows = [];
         rows.push([{ text:'Ship Via', style:['bold'] }]);
         
@@ -485,7 +471,30 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 
 //////////////Line Items
 
-    function _getLineItemsTableContent(){
+    function _getLineItemsContent(){
+        return {
+            style: 'text',
+            //layout: 'lightHorizontalLines',
+            table: {
+                headerRows: 1,
+                dontBreakRows: true,
+                widths: ['10%', '15%', '15%', '35%', '12.5%', '12.5%'],
+                body: _getLineItemsTableBody()
+            },
+            layout: {
+                hLineWidth:  function (i, node) {
+                    return (i === 0 || i === 1 || i === node.table.body.length) ? _lineWidth : 0;
+                },
+                vLineWidth: function (i, node) {  
+                    return (i === 2) ? 0 : _lineWidth;
+                },
+                hLineColor: function (i, node) { return _lineColor; },
+                vLineColor: function (i, node) { return _lineColor; }
+            }                    
+        }
+    }
+
+    function _getLineItemsTableBody(){
         var rows = [];
         //Header
         rows.push([ 
@@ -543,11 +552,49 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 
 //////////////Notes and Totals
 
-    function _getNotesContent(){
-        return "Proposal Notes: \n" +  _proposalDetails.Notes;
+    function _getNotesAndTotalsContent(){
+        return {
+            columns:[
+                {
+                    width:'62%',
+                    stack: _getNotesContent(), 
+                    style:'text'
+                },
+                {
+                    width:'12%',    
+                    text:'\n'
+                },
+                {
+                    width:'26%',
+                    stack: [         
+                        {
+                            style:'text',
+                            table: {
+                                widths: ["*", "*"],
+                                body: _getTotalsTableBody()
+                            },
+                            layout: {
+                                hLineWidth:  function (i, node) { return _lineWidth; },
+                                vLineWidth: function (i, node) { return _lineWidth; },
+                                hLineColor: function (i, node) { return _lineColor; },
+                                vLineColor: function (i, node) { return _lineColor; }
+                            }
+                        }
+                    ]    
+                }
+            ]
+        }
     }
 
-    function _getTotalsContent(){
+    function _getNotesContent(){
+        //return "Proposal Notes: \n" +  _proposalDetails.Notes;
+        return [
+            { text:'Proposal Notes:', style:'bold' },
+            _proposalDetails.Notes
+        ];
+    }
+
+    function _getTotalsTableBody(){
         var rows = [];
         rows.push([
             { text:'Subtotal', border:[true,true,true,false] },
