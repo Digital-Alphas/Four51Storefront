@@ -59,6 +59,7 @@ four51.app.factory('ProductDisplayService', ['$sce', '$451', 'Variant', 'Product
 			"unit price:" + priceBreak.Price;
 		lineItem.LineTotal = total;
 		lineItem.UnitPrice = priceBreak.Price;
+		lineItem.UnitPriceWithMarkup = priceBreak.Price + amountPerQty + (priceBreak.Price * (percentagePerLine / 100)) + fixedAddPerLine;
 	}
 	function productViewScope(scope){
 		scope.lineItemErrors = [];
