@@ -8,11 +8,10 @@ angular.module('PremierPrint-OrderProposal')
     .factory('OrderProposal', OrderProposal)  
     .filter('filterAndSortProposalFields', filterAndSortProposalFields)
     .filter('filterNonEmptyProposalFields', filterNonEmptyProposalFields)
-    .constant('proposalFieldNames', ["proposalName", "proposalCompany", "proposalEmail", "proposalPhone",
+    .constant('proposalFieldNames', ["proposalName", "proposalCompany", "proposalEmail", "proposalPhone", "proposalQuoteNumber",
                                     "proposalClientName", "proposalClientCompany", "proposalClientLocation", "proposalClientEmail", "proposalClientPhone", "proposalNotes"])
     .constant('proposalCompanyName','')
     .constant('proposalCompanyAddress','') //Use "\n" to indicate line breaks e.g. 123 Main St.\nChicago, IL 60606
-    .constant('proposalFooterDisclaimer', '')
 ;
 
 //Directive (template)
@@ -20,7 +19,8 @@ function orderproposal() {
     return {
         restrict: 'E',
         scope:{ 
-            proposal : '=', 
+            proposal : '=',
+            defaultopen : "="
         },
         template: template,
         controller: 'OrderProposalCtrl'
@@ -67,11 +67,16 @@ function orderproposal() {
                                     '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" ui-mask="{{field.MaskedInput}}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
                                     '<i class="fa fa-phone"></i>',
                                 '</div>',
+                                '<div ng-if="field.Name == \'proposalQuoteNumber\'">',
+                                    '<label>{{ field.Label | xlat }}</label>',
+                                    '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
+                                    '<i class="fa fa-hashtag"></i>',
+                                '</div>',
                                 '<div ng-if="field.Name == \'proposalClientName\'">',
-                                        '<label>{{ field.Label | xlat }}</label>',
-                                        '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
-                                        '<i class="fa fa-user"></i>',
-                                    '</div>',
+                                    '<label>{{ field.Label | xlat }}</label>',
+                                    '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
+                                    '<i class="fa fa-user"></i>',
+                                '</div>',
                                 '<div ng-if="field.Name == \'proposalClientCompany\'">',
                                     '<label>{{ field.Label | xlat }}</label>',
                                     '<input name="{{field.Name}}" class="form-control" ng-trim="{{autotrim || true}}" placeholder="{{ field.Label || field.Name }}" size="{{field.Width * .13}}" ng-maxlength="{{field.MaxLength}}" type="text" autocomplete="off" ng-required="field.Required" ng-model="field.Value" />',
@@ -108,8 +113,8 @@ function orderproposal() {
                     '</div>',
                     '<div ng-hide="!showProposalReview || showProposalEdit" class="order-location">',
                         '<div ng-repeat="field in proposal.OrderFields | filterAndSortProposalFields">',
-                            '<p ng-show="field.Value && (field.Name == \'proposalNotes\' || field.Name == \'proposalClientName\')">&nbsp;</p>',
-                            '<p ng-show="field.Value" ng-class="field.Name"><small>{{field.Value}}</small></p>',
+                            '<p ng-show="field.Value && (field.Name == \'proposalNotes\' || field.Name == \'proposalQuoteNumber\' || field.Name == \'proposalClientName\')">&nbsp;</p>',
+                            '<p ng-show="field.Value" ng-class="field.Name"><small ng-if="field.Name == \'proposalQuoteNumber\'">#</small><small>{{field.Value}}</small></p>',
                         '</div>',
                     '</div>',
                     '<div ng-hide="!showProposalReview || showProposalEdit" style="margin-top:15px" >',
@@ -133,6 +138,8 @@ function OrderProposalCtrl($scope, $routeParams, $filter, $rootScope, $451, Orde
     $scope.showProposalReview = false;
     $scope.showProposalEdit = false;
     $scope.printProposalIndicator = false;
+
+    if($scope.defaultopen) $scope.$parent.checkOutSection = 'proposal';
 
     if($scope.proposal && $scope.proposal.OrderFields){
         //Check if any of the proposal order fields are enabled for this user
@@ -205,29 +212,25 @@ function filterNonEmptyProposalFields(){
 }
 
 //Factory
-OrderProposal.$inject = ['$q','$http', '$filter', 'Address', 'proposalFieldNames', 'proposalCompanyName', 'proposalCompanyAddress', 'proposalFooterDisclaimer'];
-function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposalCompanyName, proposalCompanyAddress, proposalFooterDisclaimer) {
+OrderProposal.$inject = ['$q','$http', '$filter', 'Address', 'proposalFieldNames', 'proposalCompanyName', 'proposalCompanyAddress'];
+function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposalCompanyName, proposalCompanyAddress) {
     var _user;
     var _order;
     var _shipAddress;
     var _billAddress;    
-    var _proposalDetails = { Name:"", Company:"", Email:"", Phone:"", Notes:"", ClientName:"", ClientCompany:"", ClientEmail:"", ClientPhone:"", ClientLocation:"" };
+    var _proposalDetails = { Name:"", Company:"", Email:"", Phone:"", Notes:"", QuoteNumber:"", ClientName:"", ClientCompany:"", ClientEmail:"", ClientPhone:"", ClientLocation:"" };
     var _proposalImages = [];
     var _lineColor = "black";
     var _lineWidth = 0.5;
 
     function _getDocument(){
         return {
-            content: [
-                //header
-                _getHeaderContent(),
-                '\n',
+            header: _getHeaderContent(),
 
-                //proposal data
+            content: [
+                
+                //sales rep data
                 _getProposalDetailsContent(),
-                '\n',
-                _getProposalClientDetailsContent(),
-                '\n',
                 '\n',
 
                 /*
@@ -242,13 +245,21 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                 '\n',
                 */
 
+                _getNotesContent(),
+                '\n',
+
+                '\n',
                 //line items
                 _getLineItemsContent(),
                 '\n',
 
+                _getTotalsContent(),
+
                 //Notes and totals
-                _getNotesAndTotalsContent(),
-                '\n'
+                //_getNotesAndTotalsContent(),
+                //'\n'
+
+                _getDisclaimer()
             ],
             footer: function(currentPage, pageCount) {
                 return _getFooter(currentPage, pageCount);
@@ -267,7 +278,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                     fontSize:14
                 }
             },
-            pageMargins: [ 20, 20, 20, 60 ],
+            pageMargins: [ 20, 120, 20, 40 ],
             pageSize: 'LETTER'
         };
     }
@@ -277,12 +288,14 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
     function _getHeaderContent(){
         return {
             style:'text',
+            margin:[20,20,20,0],
             table: {
                 headerRows: 1,
                 widths: ['*', '*'],
                 body: _getHeaderTableBody()
             },
-            layout: {
+            layout: 'headerLineOnly'
+            /*{
                 hLineWidth:  function (i, node) {
                     return (i === 1) ? _lineWidth : 0;
                 },
@@ -291,7 +304,7 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
                 vLineColor: function (i, node) { return _lineColor; },
                 paddingLeft: function(i, node) { return 0; },
                 paddingRight: function(i, node) { return 0; }
-            }
+            }*/
             
         }
     }
@@ -306,7 +319,10 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 
         rows.push([
             [ _getCompanyName(), _getCompanyAddress() ],
-            { text:'Date: ' + $filter('date')(new Date(), 'MM/dd/yyyy'), style:'right' }
+            [
+                { text:'Date: ' + $filter('date')(new Date(), 'MM/dd/yyyy'), style:'right' },
+                { text:_getQuoteNumber(), style:'right' }
+            ]
         ]);
 
         return rows;
@@ -332,30 +348,9 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         return proposalCompanyAddress;
     }
 
-//////////////Footer
-    function _getFooter(currentPage, pageCount){
-        if(currentPage == pageCount){
-            return [
-                {
-                    columns:[
-                        {
-                            width:'62%',
-                            text: "Customer Signature: _________________________________________________________________"
-                        },
-                        {
-                            width:'12%',    
-                            text:'\n'
-                        },
-                        {
-                            width:'26%',
-                            text: "Date: ______________________________"
-                        }
-                    ],
-                    style:['text','bold'],
-                    margin: [ 20, 0, 20, 10 ]
-                },
-                { text:proposalFooterDisclaimer, style:'text', margin: [ 20, 10, 20, 20 ], alignment:'center' }
-            ]
+    function _getQuoteNumber(){
+        if(_proposalDetails.QuoteNumber){
+            return "Quote # " + _proposalDetails.QuoteNumber;
         } else {
             return "";
         }
@@ -364,6 +359,23 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
 //////////////Proposal Contact fields
 
     function _getProposalDetailsContent(){
+        return {
+            columns:[
+                {
+                    width:'50%',
+                    stack: _getProposalSalesRepContent(), 
+                    style:'text'
+                },
+                {
+                    width:'50%',    
+                    stack: _getProposalClientContent(), 
+                    style:'text'
+                }
+            ]
+        }
+    }
+
+    function _getProposalSalesRepContent(){
         var result = []
         result.push({ text:"Sales Representative:", style:['text','bold'] });
         if(_proposalDetails.Company) result.push({ text:_proposalDetails.Company, style:['text','bold'] });
@@ -373,12 +385,12 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         return result;
     }
 
-    function _getProposalClientDetailsContent(){
+    function _getProposalClientContent(){
         var result = []
         result.push({ text:"Prepared for:", style:['text','bold'] });
         if(_proposalDetails.ClientCompany) result.push({ text:_proposalDetails.ClientCompany, style:['text','bold'] });
         if(_proposalDetails.ClientName) result.push({ text:_proposalDetails.ClientName, style:['text','bold'] });
-        if(_proposalDetails.ClientLocation) result.push({ text:"Email: " + _proposalDetails.ClientLocation, style:'text' });
+        if(_proposalDetails.ClientLocation) result.push({ text:_proposalDetails.ClientLocation, style:'text' });
         if(_proposalDetails.ClientEmail) result.push({ text:"Email: " + _proposalDetails.ClientEmail, style:'text' });
         if(_proposalDetails.ClientPhone) result.push({ text:"Phone: " + _formatPhone(_proposalDetails.ClientPhone), style:'text' });        
         return result;
@@ -587,11 +599,40 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
     }
 
     function _getNotesContent(){
-        //return "Proposal Notes: \n" +  _proposalDetails.Notes;
         return [
-            { text:'Proposal Notes:', style:'bold' },
-            _proposalDetails.Notes
+            { text:'Proposal Notes:', style:['bold','text'] },
+            { text: _proposalDetails.Notes, style:'text' }           
         ];
+    }
+
+    function _getTotalsContent(){
+        return {
+            columns:[
+                {
+                    width:'74%',
+                    stack: '\n', 
+                    style:'text'
+                },
+                {
+                    width:'26%',
+                    stack: [         
+                        {
+                            style:'text',
+                            table: {
+                                widths: ["*", "*"],
+                                body: _getTotalsTableBody()
+                            },
+                            layout: {
+                                hLineWidth:  function (i, node) { return _lineWidth; },
+                                vLineWidth: function (i, node) { return _lineWidth; },
+                                hLineColor: function (i, node) { return _lineColor; },
+                                vLineColor: function (i, node) { return _lineColor; }
+                            }
+                        }
+                    ]    
+                }
+            ]
+        }
     }
 
     function _getTotalsTableBody(){
@@ -614,6 +655,69 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         ]);
 
         return rows;
+    }
+
+//////////////Footer
+    function _getFooter(currentPage, pageCount){
+        if(currentPage == pageCount - 1){
+            return [
+                {
+                    columns:[
+                        {
+                            width:'62%',
+                            text: "Customer Signature: _________________________________________________________________"
+                        },
+                        {
+                            width:'12%',    
+                            text:'\n'
+                        },
+                        {
+                            width:'26%',
+                            text: "Date: ______________________________"
+                        }
+                    ],
+                    style:['text','bold'],
+                    margin: [ 20, 0, 20, 20 ]
+                }
+            ]
+        } else {
+            return "";
+        }
+    }
+
+//////////////Footer
+    function _getDisclaimer(){
+        return [
+            {text:'Estimated Production Time', style:'bold', pageBreak: 'before'},
+            'Production time begins after usable artwork is received or a proof is approved. Transit time is not included in the production time.',
+            '\n\n',
+            {text:'Samples', style:'bold'},
+            'Customer authorizes GBC ® to use its customer product sample for the promotion of GBC\'s products and services. Customer approval/no approval of sample program participation will be noted on the GBC custom quotation and specifications forms. GBC understands that the above does not cover website or advertising promotion. In the event GBC wants to use a sample for the above, customer authorization will be obtained prior to publication.',
+            '\n\n',
+            {text:'Shipping', style:'bold'},
+            'GBC reserves the right to ship OVER / UNDER 10% on all custom orders.',
+            'Please select your preferred shipping method',
+            'Shipping Method:',
+            'Best Way',
+            'Ground',
+            'Next Day Air',
+            '2nd Day Air',
+            'Other:',
+            '\n\n',
+            {text:'Purchase Approval', style:'bold'},
+            'I authorize the purchase of the associated proposal with the PO# and/or the below signature.',
+            'PO # ___________________________________________________',
+            'Print Name _____________________________________________',
+            'Phone # ________________________________________________',
+            'Fax # ___________________________________________________',
+            'Email ___________________________________________________',
+            'Signature: ______________________________________________',
+            '\n',
+            'Pricing is valid for 30 days from the quote date.',
+            'Terms: Net 30 days F.O.B. - Shipping Point',
+            '\n\n',
+            'Visit our web site at www.gbcconnect.com'
+        ]
     }
 
 //////////////Helpers
@@ -672,16 +776,17 @@ function OrderProposal($q, $http, $filter, Address, proposalFieldNames, proposal
         _order = order;
         _user = user;
 
-        _proposalDetails.Name = _getFieldValue(_order.OrderFields, "proposalName" );
-        _proposalDetails.Company = _getFieldValue(_order.OrderFields, "proposalCompany" );
-        _proposalDetails.Email = _getFieldValue(_order.OrderFields, "proposalEmail" );
-        _proposalDetails.Phone = _getFieldValue(_order.OrderFields, "proposalPhone" );
-        _proposalDetails.ClientName = _getFieldValue(_order.OrderFields, "proposalClientName" );
-        _proposalDetails.ClientCompany = _getFieldValue(_order.OrderFields, "proposalClientCompany" );
-        _proposalDetails.ClientLocation = _getFieldValue(_order.OrderFields, "proposalClientLocation" );
-        _proposalDetails.ClientEmail = _getFieldValue(_order.OrderFields, "proposalClientEmail" );
-        _proposalDetails.ClientPhone = _getFieldValue(_order.OrderFields, "proposalClientPhone" );
-        _proposalDetails.Notes = _getFieldValue(_order.OrderFields, "proposalNotes" );
+        _proposalDetails.Name = _getFieldValue(_order.OrderFields, "proposalName");
+        _proposalDetails.Company = _getFieldValue(_order.OrderFields, "proposalCompany");
+        _proposalDetails.Email = _getFieldValue(_order.OrderFields, "proposalEmail");
+        _proposalDetails.Phone = _getFieldValue(_order.OrderFields, "proposalPhone");
+        _proposalDetails.QuoteNumber = _getFieldValue(_order.OrderFields, "proposalQuoteNumber");
+        _proposalDetails.ClientName = _getFieldValue(_order.OrderFields, "proposalClientName");
+        _proposalDetails.ClientCompany = _getFieldValue(_order.OrderFields, "proposalClientCompany");
+        _proposalDetails.ClientLocation = _getFieldValue(_order.OrderFields, "proposalClientLocation");
+        _proposalDetails.ClientEmail = _getFieldValue(_order.OrderFields, "proposalClientEmail");
+        _proposalDetails.ClientPhone = _getFieldValue(_order.OrderFields, "proposalClientPhone");
+        _proposalDetails.Notes = _getFieldValue(_order.OrderFields, "proposalNotes");
 
         if(_order && _order.ShipAddressID){
             Address.get(_order.ShipAddressID, function(add) {
