@@ -16,7 +16,7 @@ angular.module('PremierPrint-CustomTextField')
                                             //Variable Product
                                             (scope.Product && scope.Product.StaticSpecGroups) ? scope.Product.StaticSpecGroups : 
                                             //Variable Product - Matrix
-                                            (scope.matrixitem.Product && scope.matrixitem.Product.StaticSpecGroups) ? scope.matrixitem.Product.StaticSpecGroups : null;
+                                            (scope.matrixitem && scope.matrixitem.Product && scope.matrixitem.Product.StaticSpecGroups) ? scope.matrixitem.Product.StaticSpecGroups : null;
 
                     if(staticSpecGroups){
 
