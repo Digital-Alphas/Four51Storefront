@@ -10498,3 +10498,14 @@ table[datepicker] {
   vertical-align: baseline;
   white-space: nowrap;
 }
+/* style radio button labels*/
+.view-form-icon label.radio-label {
+  position: relative;
+  top: auto;
+  font-weight: normal;
+  font-size: inherit;
+}
+customselectionfield input[type="radio"]{
+  vertical-align: middle;
+  margin: 0 4px 0 0;
+}
