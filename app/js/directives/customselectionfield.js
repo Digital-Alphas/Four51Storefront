@@ -17,16 +17,28 @@ four51.app.directive('customselectionfield', ['$451', function($451) {
 					opt.Selected = false;
 				});
 				// end reset
-				scope.customfield.Value = this.item == null ? null : this.item.Value;
-				scope.customfield.SelectedOptionID = this.item == null ? null : this.item.ID;
-				if (this.item != null) this.item.Selected = true;
-
-				if (this.item != null && this.item.Value.indexOf('Other') > -1 && this.item.ID.indexOf('_other') > -1) {
-					scope.customfield.isOtherSelected = true;
-					this.item.Selected = true;
-					scope.customfield.SelectedOptionID = this.item.ID;
-					scope.customfield.Value = scope.other;
+				if(scope.customfield.IsRadioButtons){
+				    if(scope.customfield.SelectedOptionID != null){
+    				    var option = $451.filter(scope.customfield.Options, { 'Property': 'ID', 'Value': scope.customfield.SelectedOptionID })[0];
+    				    option.Selected = true;
+    				    scope.customfield.Value = option.Value;
+    				    if(scope.customfield.Value == "Other"){
+    				        scope.customfield.isOtherSelected = true;
+    				    }   
+				    }
+				} else {
+				    scope.customfield.Value = this.item == null ? null : this.item.Value;
+    				scope.customfield.SelectedOptionID = this.item == null ? null : this.item.ID;
+    				if (this.item != null) this.item.Selected = true;
+    
+    				if (this.item != null && this.item.Value.indexOf('Other') > -1 && this.item.ID.indexOf('_other') > -1) {
+    					scope.customfield.isOtherSelected = true;
+    					this.item.Selected = true;
+    					scope.customfield.SelectedOptionID = this.item.ID;
+    					scope.customfield.Value = scope.other;
+    				}
 				}
+				
 				if (scope.change)
 					scope.change(scope.customfield);
 			};
@@ -53,11 +65,25 @@ four51.app.directive('customselectionfield', ['$451', function($451) {
 						matched = true;
 					}
 				});
-				this.item = scope.customfield.Value != null ? $451.filter(scope.customfield.Options, { 'Property': 'ID', 'Value': id })[0] : null;
-				if (this.item && this.item.Value == 'Other') {
-					scope.other = scope.customfield.Value;
-					this.otherChanged();
+				
+				if(scope.customfield.IsRadioButtons){
+				    if(id != null){
+				        scope.customfield.SelectedOptionID = id;
+    				    var option = $451.filter(scope.customfield.Options, { 'Property': 'ID', 'Value': id })[0];
+    				    if(option != null && option.Value != null && option.Value == "Other"){
+    				        scope.other = scope.customfield.Value;
+        					this.otherChanged();
+    				    }
+				    }
+				    
+				} else {
+				    this.item = scope.customfield.Value != null ? $451.filter(scope.customfield.Options, { 'Property': 'ID', 'Value': id })[0] : null;
+    				if (this.item && this.item.Value == 'Other') {
+    					scope.other = scope.customfield.Value;
+    					this.otherChanged();
+    				}
 				}
+				
 			};
 		}
 	}
