@@ -8061,9 +8061,6 @@ select.ng-invalid:invalid:invalid:focus {
     overflow-y: scroll;
   }
 }
-.category_desc {
-  padding:15px;
-}
 .panel-product-list ul li.minimal .panel-body > div:first-of-type,
 .panel-product-list ul li.minimal .panel-category-list:not(.no-panels) > div:first-of-type,
 .panel-product-list ul li.minimal .panel-product-list:not(.no-panels) > div:first-of-type,
@@ -10302,6 +10299,15 @@ table[datepicker] {
 .panel-product-list .thumbnail img {
   max-height: 210px;
 }
+/* Add border around product images */
+.prod-image-section img,
+.panel-product-list .thumbnail img,
+.panel-lineitem figure img {
+  border: 1px solid #ddd;
+}
+.category_desc {
+  padding: 15px;
+}
 @media (max-width: 767px) {
   .product-image-large {
     max-height: 297px;
@@ -10505,7 +10511,7 @@ table[datepicker] {
   font-weight: normal;
   font-size: inherit;
 }
-customselectionfield input[type="radio"]{
+customselectionfield input[type="radio"] {
   vertical-align: middle;
   margin: 0 4px 0 0;
 }
